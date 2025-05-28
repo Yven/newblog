@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: { primary: "#4169e1", secondary: "#6c757d" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-gfm-heading-id@4.1.1/lib/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-mangle@1.1.10/lib/index.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css"
+      integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"
+      integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
+      integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      crossorigin="anonymous"
+    ></script>
+
+    <style>
+      :where([class^="ri-"])::before {
+        content: "\f3c2";
+      }
+      .search-highlight {
+        background-color: #ffcc00;
+        color: #000;
+      }
+    </style>
+    <link rel="stylesheet" href="./static/markdown.css" />
+  </head>
+
+  <body class="bg-gray-200 dark:bg-gray-900 dark:text-gray-200 min-h-screen">
+    <div class="container mx-auto max-w-3xl px-5 py-8">
+      <div
+        id="fullContainer"
+        class="relative bg-white dark:bg-gray-800 shadow-md rounded-lg p-8 pb-0"
+      >
+        <div id="titleBox">
+          <h1
+            class="text-4xl font-bold text-black dark:text-gray-400 text-center mb-6"
+          >
+            那人的庭院
+          </h1>
+          <div class="text-center text-gray-400 text-sm mb-4">
+            人生如逆旅，我亦是行人。
+          </div>
+          <div class="flex justify-center space-x-4 mb-8">
+            <a
+              href="#home"
+              class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
+              >首页</a
+            >
+            <span class="text-gray-600 dark:text-gray-300">/</span>
+            <a
+              href="#about"
+              class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
+              >关于</a
+            >
+          </div>
+        </div>
+        <div id="miniTitleBox" class="flex items-center justify-center hidden">
+          <span
+            class="absolute top-[2.15rem] text-xl font-bold text-black dark:text-gray-400"
+          >
+            那人的庭院
+          </span>
+          <div class="absolute top-24 -left-[1.2rem] overflow-hidden">
+            <div class="flex flex-col space-y-2 text-xs leading-[0.75]">
+              <a
+                href="#home"
+                class="bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2"
+                >首页</a
+              >
+              <a
+                href="#about"
+                class="bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2"
+                >关于</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="flex mb-4">
+          <div class="w-full">
+            <div
+              class="flex justify-between items-center pb-2 border-b border-gray-400"
+            >
+              <div class="flex items-center space-x-2">
+                <button
+                  id="darkModeToggle"
+                  class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
+                >
+                  <i class="ri-sun-line"></i>
+                </button>
+                <button
+                  id="tocToggle"
+                  class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
+                >
+                  <i class="ri-list-unordered"></i>
+                </button>
+              </div>
+              <div id="searchElement" class="relative flex">
+                <button
+                  id="searchButton"
+                  class="absolute z-10 w-8 h-8 flex items-center justify-center rounded-full dark:text-gray-200"
+                >
+                  <i class="ri-search-line"></i>
+                </button>
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder=""
+                  class="w-8 h-8 pl-7 rounded-full text-xs border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:placeholder-gray-400"
+                />
+              </div>
+            </div>
+
+            <div
+              id="defualt_empty"
+              class="pt-8 h-96 flex items-center justify-center flex-col gap-4 hidden"
+            >
+              <img src="./static/empty.png" alt="empty" class="w-64" />
+              <span class="text-gray-400">页面未找到</span>
+            </div>
+
+            <div id="home" class="grid grid-cols-1 pt-8 hidden"></div>
+
+            <div id="content" class="grid grid-cols-12 hidden">
+              <div class="col-span-12 pt-8 pb-6">
+                <div class="title-box flex items-center space-x-10">
+                  <div id="title" class="mb-4 text-3xl font-bold"></div>
+                  <div class="flex space-x-4">
+                    <button
+                      id="editButton"
+                      class="edit-content-btn flex items-center justify-center text-gray-500 hover:text-gray-100"
+                    >
+                      <i class="ri-edit-box-line"></i>
+                    </button>
+                    <button
+                      id="deleteButton"
+                      class="edit-content-btn flex items-center justify-center text-gray-500 hover:text-gray-100"
+                    >
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="time" class="text-xs font-bold text-gray-400"></div>
+              </div>
+              <div
+                id="tocContainer"
+                class="xl:fixed xl:left-20 xl:top-20 xl:w-48 text-wrap md:col-span-6"
+              >
+                <div
+                  class="sticky top-4 p-4 pl-8 bg-gray-100 dark:bg-gray-700 rounded-lg"
+                >
+                  <h3
+                    class="text-lg font-semibold text-gray-700 dark:text-[#e5e7ebc7] mb-2"
+                  >
+                    目录
+                  </h3>
+                  <ul
+                    id="toc"
+                    class="text-sm text-gray-600 dark:text-[#9ca3af] space-y-1 ml-4"
+                  ></ul>
+                </div>
+              </div>
+              <div id="contentContainer" class="col-span-12">
+                <div id="markdownContent" class="markdown-body"></div>
+                <div id="editContent" class="hidden">
+                  <form id="editForm" class="felx space-y-4">
+                    <textarea
+                      id="editTextarea"
+                      name="content"
+                      rows="20"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-500"
+                    >
+                    </textarea>
+                    <div class="flex items-center justify-center gap-6">
+                      <button
+                        type="submit"
+                        class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors !rounded-button"
+                      >
+                        提交
+                      </button>
+                      <button
+                        type="button"
+                        id="cancelEdit"
+                        class="w-full bg-gray-600 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors !rounded-button"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="mt-12 pt-4 border-t border-gray-400 text-center text-gray-500 text-sm"
+        >
+          本站已安全运行
+          <b
+            ><strong
+              ><script type="text/javascript">
+                const urodz = new Date("09/06/2022");
+                const now = new Date();
+                const ile = now.getTime() - urodz.getTime();
+                const dni = Math.floor(ile / (1000 * 60 * 60 * 24));
+                document.write(+dni);
+              </script></strong
+            ></b
+          >&nbsp;天&nbsp;|
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="blank"
+            style="color: #939393"
+            >粤ICP备2022109099号-1&nbsp;</a
+          >
+          <div style="width: 300px; margin: 0 auto; padding: 20px 0">
+            <a
+              target="_blank"
+              href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011202002194"
+              style="
+                display: inline-block;
+                text-decoration: none;
+                height: 20px;
+                line-height: 20px;
+              "
+            >
+              <img
+                src="https://blog.yvenchang.cn/beianlogo.png"
+                style="float: left"
+              />
+              <p
+                style="
+                  float: left;
+                  height: 20px;
+                  line-height: 20px;
+                  margin: 0px 0px 0px 5px;
+                  color: #939393;
+                "
+              >
+                粤公网安备 44011202002194 号
+              </p>
+            </a>
+          </div>
+        </div>
+
+        <div
+          id="pageFlip"
+          class="absolute bottom-0 right-0 float-right w-16 h-16"
+        >
+          <div
+            id="pageFlipContainer"
+            class="page-flip-container w-full h-full relative"
+          >
+            <div
+              class="page-base w-full h-full flex items-center justify-center"
+            ></div>
+            <div class="page-fold absolute bottom-0 right-0 w-8 h-8">
+              <div id="foldEffect" class="fold-effect bg-gray-400"></div>
+            </div>
+            <div
+              id="loginButton"
+              class="user-login absolute bottom-0 right-0 w-6 h-6 flex items-center justify-center"
+            >
+              <i class="ri-user-line text-primary cursor-pointer"></i>
+            </div>
+            <div
+              id="logoutButton"
+              class="user-login absolute bottom-0 right-0 w-6 h-6 flex items-center justify-center hidden"
+            >
+              <i class="ri-logout-box-r-line text-primary cursor-pointer"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="backToTop"
+        class="fixed bottom-20 right-2 w-10 flex items-center justify-center hidden transition-opacity hover:opacity-100"
+      >
+        <img src="./static/flandre.png" title="返回顶部~" alt="" />
+      </button>
+
+      <div
+        id="loginModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+      >
+        <form id="loginForm" class="bg-white dark:bg-gray-800 rounded-lg p-8 sm:w-96 w-3/4 relative">
+          <button
+            id="loginClose"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          >
+            <i class="ri-close-line text-xl"></i>
+          </button>
+          <h2
+            class="text-xl text-center font-semibold text-gray-800 dark:text-gray-300 mb-6"
+          >
+            验证
+          </h2>
+          <div
+            class="flex flex-col items-center justify-center gap-6"
+          >
+            <div class="relative w-full">
+              <input
+                type="text"
+                name="username"
+                class="w-full px-4 py-2 pl-9 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-500"
+                required
+              />
+              <div class="absolute left-3 top-2 text-gray-400">
+                <i class="ri-user-line"></i>
+              </div>
+            </div>
+            <div class="relative w-full">
+              <input
+                type="password"
+                name="password"
+                class="w-full px-4 py-2 pl-9 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-500"
+                required
+              />
+              <div class="absolute left-3 top-2 text-gray-400">
+                <i class="ri-lock-line"></i>
+              </div>
+            </div>
+            <div class="w-full flex items-center justify-center gap-6">
+              <button
+                type="submit"
+                class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors !rounded-button"
+              >
+                登录
+              </button>
+              <button
+                type="button"
+                id="loginCancel"
+                class="w-full bg-gray-600 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors !rounded-button"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div
+        id="logoutModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+      >
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 sm:w-96 w-3/4 relative">
+          <button
+            id="logoutClose"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          >
+            <i class="ri-close-line text-xl"></i>
+          </button>
+          <h2
+            class="text-xl text-center font-semibold text-gray-800 dark:text-gray-300 mb-6"
+          >
+            是否确认退出？
+          </h2>
+          <form id="logoutForm" class="flex items-center justify-center gap-6">
+            <button
+              type="submit"
+              class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors !rounded-button"
+            >
+              确定
+            </button>
+            <button
+              type="button"
+              id="logoutCancel"
+              class="w-full bg-gray-600 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors !rounded-button"
+            >
+              取消
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div
+        id="deleteModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+      >
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 sm:w-96 w-3/4 relative">
+          <button
+            id="deleteClose"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          >
+            <i class="ri-close-line text-xl"></i>
+          </button>
+          <h2
+            class="text-xl text-center font-semibold text-gray-800 dark:text-gray-300 mb-6"
+          >
+            是否确认删除此文章？
+          </h2>
+          <form id="deleteForm" class="flex items-center justify-center gap-6">
+            <button
+              type="submit"
+              class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors !rounded-button"
+            >
+              确定
+            </button>
+            <button
+              type="button"
+              id="deleteCancel"
+              class="w-full bg-gray-600 text-white dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors !rounded-button"
+            >
+              取消
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div
+        id="msgModal"
+        class="fixed top-5 right-5 bg-gray-400 dark:bg-gray-700 rounded-sm w-72 h-10 flex items-center justify-between px-2 hidden"
+      >
+        <i class="ri-notification-fill text-yellow-500"></i>
+        <span id="msgContent" class="text-sm"></span>
+        <button id="closeModal3" class="text-gray-500 hover:text-gray-300">
+          <i class="ri-close-line text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <style>
+      .page-fold {
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+      .fold-effect {
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0;
+        border-color: transparent transparent #e5e5e5 transparent;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        transition: all 0.3s ease;
+        transform-origin: bottom right;
+        box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .show-flod-effect {
+        border-width: 0 0 40px 40px;
+        box-shadow: -4px -4px 8px rgba(0, 0, 0, 0.15);
+      }
+      .page-flip-container:hover .fold-effect {
+        border-width: 0 0 40px 40px;
+        box-shadow: -4px -4px 8px rgba(0, 0, 0, 0.15);
+      }
+      .user-login {
+        opacity: 0;
+        transition: opacity 0.1s cubic-bezier(1, 0, 1, 1);
+      }
+      .show-user-login {
+        opacity: 1;
+      }
+      .page-flip-container:hover .user-login {
+        opacity: 1;
+      }
+      .text-vertical {
+        writing-mode: vertical-lr;
+      }
+      #searchButton {
+        transition: all 0.3s ease;
+      }
+      #searchInput {
+        transition: all 0.3s ease;
+      }
+    </style>
+
+    <script src="./static/lib.js"></script>
+    <script src="./static/api.js"></script>
+    <script src="./static/init.js"></script>
+  </body>
+</html>
