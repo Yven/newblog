@@ -1,4 +1,4 @@
-package server
+package handler
 
 // func TestHelloWorldHandler(t *testing.T) {
 // 	s := &Server{}

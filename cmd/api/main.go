@@ -9,7 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"newblog/internal/server"
+	"newblog/internal/global"
+	"newblog/internal/handler"
+	"newblog/internal/repository"
+	"newblog/internal/service"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -38,8 +41,17 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
+	db := repository.New()
+	repo := repository.NewRepositoryContainer(db)
+	svc := service.NewServiceContainer(repo)
 
-	server := server.NewServer()
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%d", global.Port),
+		Handler:      handler.RegisterRoutes(svc),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
