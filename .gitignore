@@ -5,6 +5,8 @@
 *.so
 *.dylib
 
+db/*
+
 # Test binary, built with "go test -c"
 *.test
 
@@ -21,6 +23,7 @@ tmp/
 # IDE specific files
 .vscode
 .idea
+.devdbrc
 
 # .env file
 .env

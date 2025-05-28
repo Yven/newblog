@@ -8,7 +8,6 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
-
 	"newblog/internal/database"
 )
 
