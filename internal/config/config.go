@@ -2,39 +2,14 @@ package config
 
 import (
 	"log"
+	"newblog/internal/model"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Server struct {
-		Port string `mapstructure:"port"`
-		Addr string `mapstructure:"addr"`
-	} `mapstructure:"server"`
-
-	Database struct {
-		Host     string `mapstructure:"host"`
-		User     string `mapstructure:"user"`
-		Password string `mapstructure:"password"`
-		Name     string `mapstructure:"name"`
-	} `mapstructure:"database"`
-
-	Auth struct {
-		Id        int64  `mapstructure:"id"`
-		User      string `mapstructure:"user"`
-		Password  string `mapstructure:"password"`
-		SignKey   string `mapstructure:"sign_key"`
-		LocalPath string `mapstructure:"local_path"`
-		Issuer    string `mapstructure:"issuer"`
-	} `mapstructure:"auth"`
-
-	Log struct {
-		Level string `mapstructure:"level"`
-	} `mapstructure:"log"`
-}
-
-var Global *Config
+var Global *model.Config
 
 func InitConfig() {
 	defaultPath := "./internal/config"
@@ -45,6 +20,8 @@ func InitConfig() {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(defaultPath)
 
+	// 支持嵌套结构的环境变量覆盖：server.port => SERVER_PORT
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	// 支持通过环境变量覆盖配置
 	viper.AutomaticEnv()
 
@@ -52,7 +29,7 @@ func InitConfig() {
 		log.Fatalf("读取配置文件失败: %v", err)
 	}
 
-	var c Config
+	var c model.Config
 	if err := viper.Unmarshal(&c); err != nil {
 		log.Fatalf("解析配置失败: %v", err)
 	}

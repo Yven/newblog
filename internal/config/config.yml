@@ -1,8 +1,17 @@
 server:
-  port: "8980"
+  port: 8980
   addr: "http://localhost:8080"
 
-cache:
+web:
+  title: "那人的庭院"
+  desc: "人生如逆旅，我亦是行人。"
+  nav_list:
+    -
+      title: "首页"
+      path: ""
+    -
+      title: "关于"
+      path: "about"
 
 database:
   host: "localhost"

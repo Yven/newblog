@@ -2,9 +2,9 @@ package handler
 
 import (
 	"net/http"
+	"newblog/internal/config"
 	"newblog/internal/middleware"
 	"newblog/internal/service"
-	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{os.Getenv("WEBSITE_ADDR")},
+		AllowOrigins:     []string{config.Global.Server.Addr},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -22,6 +22,10 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 
 	adminHandler := NewAdminHandler(svc.AdminService)
 	articleHandler := NewArticleHandler(svc.ArticleService)
+	WebHandler := NewWebHandler(svc.WebService)
+
+	web := r.Group("/web")
+	web.GET("/info", WebHandler.Info)
 
 	r.POST("/login", adminHandler.Login)
 
