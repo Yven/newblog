@@ -1,10 +1,9 @@
 package service
 
 import (
-	"errors"
 	"newblog/internal/global"
 	"newblog/internal/model"
-	"newblog/internal/util"
+	"newblog/internal/repository"
 )
 
 type AdminService interface {
@@ -12,26 +11,31 @@ type AdminService interface {
 	Logout() bool
 }
 
-type adminService struct{}
-
-func NewAdminService() *adminService {
-	return &adminService{}
+type adminService struct {
+	db repository.AdminRepository
 }
 
-func (s *adminService) Login(postUser string, postPassword string) (*model.Token, error) {
-	if global.Admin.User == postUser && global.Admin.Password == postPassword {
-		token, err := util.NewJwt(global.Token.Key, global.Token.Path).GetToken(postUser)
-		if err != nil {
-			return nil, err
-		}
-
-		return token, nil
-	} else {
-		return nil, errors.New("用户名或密码错误")
+func NewAdminService(db repository.AdminRepository) *adminService {
+	return &adminService{
+		db: db,
 	}
 }
 
+func (s *adminService) Login(postUser string, postPassword string) (*model.Token, error) {
+	admin, err := s.db.Info(postUser, postPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := global.JwtService.GetToken(admin.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
 func (s *adminService) Logout() bool {
-	util.NewJwt(global.Token.Key, global.Token.Path).Cancel()
+	global.JwtService.Cancel()
 	return true
 }

@@ -1,0 +1,22 @@
+server:
+  port: "8980"
+  addr: "http://localhost:8080"
+
+cache:
+
+database:
+  host: "localhost"
+  user: "root"
+  password: "123456"
+  name: "demo"
+
+auth:
+  id: 1
+  user: "admin"
+  password: "123456"
+  sign_key: "123456"
+  local_path: "./db/auth"
+  issuer: "yven_server"
+
+log:
+  level: "info"

@@ -10,6 +10,6 @@ type Container struct {
 func NewServiceContainer(repo *repository.Container) *Container {
 	return &Container{
 		ArticleService: NewArticleService(repo.ArticleRepo),
-		AdminService:   NewAdminService(),
+		AdminService:   NewAdminService(repo.AdminRepo),
 	}
 }

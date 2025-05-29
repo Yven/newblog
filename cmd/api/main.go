@@ -9,10 +9,12 @@ import (
 	"syscall"
 	"time"
 
+	"newblog/internal/config"
 	"newblog/internal/global"
 	"newblog/internal/handler"
 	"newblog/internal/repository"
 	"newblog/internal/service"
+	"newblog/internal/util"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -41,12 +43,18 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
-	db := repository.New()
+	// 配置初始化
+	config.InitConfig()
+	// JWT 初始化
+	global.JwtService = util.NewJwt(config.Global.Auth.SignKey, config.Global.Auth.LocalPath)
+	// 数据库初始化
+	db := repository.InitDb()
+	// 容器初始化
 	repo := repository.NewRepositoryContainer(db)
 	svc := service.NewServiceContainer(repo)
-
+	// http 服务初始化
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", global.Port),
+		Addr:         fmt.Sprintf(":%d", config.Global.Server.Port),
 		Handler:      handler.RegisterRoutes(svc),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

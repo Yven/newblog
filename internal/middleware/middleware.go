@@ -23,8 +23,7 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 
-		jwt := util.NewJwt(global.Token.Key, global.Token.Path)
-		if ok, err := jwt.Parse(authArr[1]); !ok {
+		if ok, err := global.JwtService.Check(authArr[1]); !ok {
 			util.ErrorAbort(c, http.StatusUnauthorized, err)
 		}
 
