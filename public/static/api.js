@@ -70,8 +70,10 @@ async function logout() {
 }
 
 // 获取文章列表
-async function getList() {
-  return get('/list');
+async function getList(keyword) {
+  // 如果有关键词则添加到查询参数中
+  const params = keyword ? `?keyword=${encodeURIComponent(keyword)}` : '';
+  return get(`/list${params}`);
 }
 
 // 获取指定文章内容

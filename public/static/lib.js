@@ -174,7 +174,7 @@ function showHome() {
   document.getElementById("toc").innerHTML = "";
   document.getElementById("markdownContent").innerHTML = "";
   document.getElementById("tocToggle").classList.add("hidden");
-  document.getElementById("searchElement").classList.add("hidden");
+  document.getElementById("searchElement").classList.remove("hidden");
 }
 
 function showContent() {
@@ -202,7 +202,7 @@ function showLoadding() {
   document.getElementById("toc").innerHTML = "";
   document.getElementById("markdownContent").innerHTML = "";
   document.getElementById("tocToggle").classList.add("hidden");
-  document.getElementById("searchElement").classList.add("hidden");
+  document.getElementById("searchElement").classList.remove("hidden");
 
   // 初始化正文加载占位符
   const loading = document.getElementById("loading")
@@ -241,3 +241,67 @@ function buildTpl(tpl, data) {
     return data[key] !== undefined ? data[key] : "";
   });
 }
+
+function isHome() {
+  const hash = window.location.hash.slice(1);
+  return hash === "" || hash === "home" || hash === "index";
+}
+
+function cleanSearch() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchInput").focus();
+  document.getElementById("searchInput").blur();
+}
+
+function highlightContent(elementId, searchTerm) {
+  const container = document.getElementById(elementId);
+
+  // 移除所有高亮
+  const highlightRegex = /<span class="search-highlight">(.*?)<\/span>/g;
+  const content = container.innerHTML;
+  container.innerHTML = content.replace(highlightRegex, "$1");
+
+  if (searchTerm === "") {
+    return;
+  }
+
+  // 递归遍历所有文本节点并高亮搜索词
+  function highlightText(node) {
+    if (node.nodeType === 3) {
+      // 文本节点
+      const text = node.textContent;
+      const regex = new RegExp(searchTerm, "gi");
+      if (regex.test(text)) {
+        const span = document.createElement("span");
+        span.innerHTML = text.replace(
+          regex,
+          (match) => `<span class="search-highlight">${match}</span>`
+        );
+        node.parentNode.replaceChild(span, node);
+      }
+    } else if (node.nodeType === 1) {
+      // 元素节点
+      // 跳过已经高亮的元素
+      if (!node.classList?.contains("search-highlight")) {
+        Array.from(node.childNodes).forEach((child) => highlightText(child));
+      }
+    }
+  }
+
+  // 保存原有样式
+  const originalStyles = {};
+  container.querySelectorAll("*").forEach((el) => {
+    originalStyles[el] = el.getAttribute("style");
+  });
+
+  // 添加新的高亮
+  highlightText(container);
+
+  // 恢复原有样式
+  container.querySelectorAll("*").forEach((el) => {
+    if (originalStyles[el]) {
+      el.setAttribute("style", originalStyles[el]);
+    }
+  });
+}
+

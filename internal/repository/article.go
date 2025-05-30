@@ -7,7 +7,7 @@ import (
 )
 
 type ArticleRepository interface {
-	List() (*[]model.ArticleList, error)
+	List(keyword string) (*[]model.ArticleList, error)
 	Info(slug string) (*model.Article, error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
@@ -54,16 +54,21 @@ LIMIT 1
 	return &article, nil
 }
 
-func (a *articleRepository) List() (*[]model.ArticleList, error) {
+func (a *articleRepository) List(keyword string) (*[]model.ArticleList, error) {
+	addWhere := ""
+	if keyword != "" {
+		addWhere = "AND a.title LIKE ?"
+	}
+
 	query := `
 SELECT a.id, a.slug, a.title, a.cid, strftime('%m-%d', a.create_time) as date, strftime('%Y', create_time) AS year, c.name AS category
 FROM article AS a
 LEFT JOIN category AS c ON a.cid = c.id
-WHERE delete_time IS NULL
+WHERE delete_time IS NULL ` + addWhere + `
 ORDER BY create_time DESC
 `
 
-	rows, err := a.db.Query(query)
+	rows, err := a.db.Query(query, "%"+keyword+"%")
 	defer rows.Close()
 
 	if err != nil {

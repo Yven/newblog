@@ -17,7 +17,8 @@ func NewArticleHandler(articleService service.ArticleService) *ArticleHandler {
 }
 
 func (h *ArticleHandler) List(c *gin.Context) {
-	data, err := h.articleService.List()
+	keyword := c.Query("keyword")
+	data, err := h.articleService.List(keyword)
 
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)

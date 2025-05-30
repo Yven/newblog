@@ -51,7 +51,6 @@ var webOpen = false;
 
 // 根据路由激活页面内容
 function render() {
-  console.log("render");
   if (webOpen === false) {
     showDefault();
     return;
@@ -175,16 +174,39 @@ function init() {
     }
   });
   searchInput.addEventListener("blur", function () {
-    if (searchInput.value === "") {
+    if (searchInput.value.trim() === "") {
       searchInput.classList.remove("w-[4.5rem]");
       searchInput.classList.add("w-8");
       searchInput.placeholder = "";
+    } else {
+      search(searchInput.value);
     }
   });
+  searchInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      search(searchInput.value);
+      return;
+    }
+  })
 }
 
-function setupList() {
-  getList().then((res) => {
+function search (searchTerm) {
+  if (searchTerm.trim() === "") {
+    return;
+  }
+
+  if (isHome()) {
+    setupList(searchTerm).then(() => {
+      highlightContent("home", searchTerm);
+    });
+  } else {
+    highlightContent("markdownContent", searchTerm);
+  }
+}
+
+async function setupList(keyword) {
+  return getList(keyword).then((res) => {
     let data = res.data;
 
     if (!data || data.length === 0) {
@@ -418,60 +440,6 @@ function setupContent(route) {
   });
 }
 
-function setupSearch() {
-  const searchInput = document.getElementById("searchInput");
-  searchInput.addEventListener("input", function () {
-    let searchTerm = this.value.trim();
-    const container = document.getElementById("markdownContent");
-
-    // 移除所有高亮
-    const highlightRegex = /<span class="search-highlight">(.*?)<\/span>/g;
-    const content = container.innerHTML;
-    container.innerHTML = content.replace(highlightRegex, '$1');
-
-    if (searchTerm === "") {
-      return;
-    }
-
-    // 递归遍历所有文本节点并高亮搜索词
-    function highlightText(node) {
-      if (node.nodeType === 3) { // 文本节点
-        const text = node.textContent;
-        const regex = new RegExp(searchTerm, "gi");
-        if (regex.test(text)) {
-          const span = document.createElement("span");
-          span.innerHTML = text.replace(
-            regex,
-            match => `<span class="search-highlight">${match}</span>`
-          );
-          node.parentNode.replaceChild(span, node);
-        }
-      } else if (node.nodeType === 1) { // 元素节点
-        // 跳过已经高亮的元素
-        if (!node.classList?.contains("search-highlight")) {
-          Array.from(node.childNodes).forEach(child => highlightText(child));
-        }
-      }
-    }
-
-    // 保存原有样式
-    const originalStyles = {};
-    container.querySelectorAll("*").forEach(el => {
-      originalStyles[el] = el.getAttribute("style");
-    });
-
-    // 添加新的高亮
-    highlightText(container);
-
-    // 恢复原有样式
-    container.querySelectorAll("*").forEach(el => {
-      if (originalStyles[el]) {
-        el.setAttribute("style", originalStyles[el]);
-      }
-    });
-  });
-}
-
 function setupMsgModal() {
   const closeModal3 = document.getElementById("closeModal3");
   const msgModal = document.getElementById("msgModal");
@@ -610,13 +578,12 @@ function renderMath() {
 // 监听哈希变化事件
 window.addEventListener("hashchange", function () {
   showLoadding();
+  cleanSearch();
   render();
 });
 
 document.addEventListener("DOMContentLoaded", function () {
   init();
-  // 设置搜索框
-  setupSearch();
   // 设置暗黑模式
   setupDarkMode();
   // 设置返回顶部按钮

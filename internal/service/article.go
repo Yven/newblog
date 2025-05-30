@@ -6,7 +6,7 @@ import (
 )
 
 type ArticleService interface {
-	List() (data *[]model.ArticleList, err error)
+	List(keyword string) (data *[]model.ArticleList, err error)
 	Info(slug string) (data *model.Article, err error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
@@ -22,8 +22,8 @@ func NewArticleService(db repository.ArticleRepository) *articleService {
 	}
 }
 
-func (s *articleService) List() (data *[]model.ArticleList, err error) {
-	return s.db.List()
+func (s *articleService) List(keyword string) (data *[]model.ArticleList, err error) {
+	return s.db.List(keyword)
 }
 
 func (s *articleService) Info(slug string) (data *model.Article, err error) {
