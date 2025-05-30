@@ -30,6 +30,7 @@ func (w *webRepository) Info() (*model.Web, error) {
 	}
 
 	return &model.Web{
+		Open:    conf.Open,
 		Title:   conf.Title,
 		Desc:    conf.Desc,
 		NavList: &navList,

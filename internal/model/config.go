@@ -7,6 +7,7 @@ type Config struct {
 	} `mapstructure:"server"`
 
 	Web struct {
+		Open    bool   `mapstructure:"open"`
 		Title   string `mapstructure:"title"`
 		Desc    string `mapstructure:"desc"`
 		NavList []struct {

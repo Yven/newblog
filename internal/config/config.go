@@ -5,6 +5,7 @@ import (
 	"newblog/internal/model"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
@@ -29,12 +30,24 @@ func InitConfig() {
 		log.Fatalf("读取配置文件失败: %v", err)
 	}
 
-	var c model.Config
-	if err := viper.Unmarshal(&c); err != nil {
-		log.Fatalf("解析配置失败: %v", err)
+	reload := func() {
+		var newConfig model.Config
+		if err := viper.Unmarshal(&newConfig); err != nil {
+			log.Printf("热加载配置失败: %v", err)
+			return
+		}
+
+		Global = &newConfig
+		log.Println("配置已热更新")
 	}
 
-	Global = &c
+	// 初始加载
+	reload()
 
-	log.Println("配置初始化完成")
+	// 启动监听
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Printf("检测到配置文件变化: %s", e.Name)
+		reload()
+	})
 }
