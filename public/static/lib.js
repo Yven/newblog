@@ -115,7 +115,59 @@ function refresh() {
   window.location.reload();
 }
 
+function titleAnimate(show) {
+  if (show === undefined) {
+    show = false;
+  }
+
+  const titleBox = document.getElementById("titleBox");
+  titleBox.className = show
+    ? "transition-all duration-300 ease-in-out flex items-center justify-center flex-col space-y-6 mb-8"
+    : "transition-all duration-300 ease-in-out flex items-center justify-center";
+
+  const webTitle = document.getElementById("webTitle");
+  webTitle.className = show
+    ? "transition-all duration-300 ease-in-out text-4xl font-bold text-black dark:text-gray-400 text-center"
+    : "transition-all duration-300 ease-in-out absolute top-[2.15rem] text-xl font-bold text-black dark:text-gray-400";
+
+  const webDesc = document.getElementById("webDesc");
+  const webNacFloat = document.getElementById("webNavFloat");
+  webNacFloat.classList.remove("w-full");
+
+  if (show) {
+    webDesc.classList.remove("hidden");
+    webNacFloat.classList.remove("absolute");
+  } else {
+    webDesc.classList.add("hidden");
+    webNacFloat.classList.add("absolute");
+  }
+
+  const webNav = document.getElementById("webNav");
+  webNav.className =
+    show
+    ? "flex justify-center space-x-4"
+    : "flex flex-col space-y-2 text-xs leading-[0.75]";
+
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    link.className =
+      show
+      ? "nav-link text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
+      : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2";
+  });
+
+  const navDelimiter = document.querySelectorAll(".nav-delimiter");
+  navDelimiter.forEach(element => {
+    if (show) {
+      element.classList.remove("hidden");
+    } else {
+      element.classList.add("hidden");
+    }
+  });
+}
+
 function showHome() {
+  document.getElementById("loading").classList.add("hidden");
   document.getElementById("defualt_empty").classList.add("hidden");
   document.getElementById("home").classList.remove("hidden");
   document.getElementById("content").classList.add("hidden");
@@ -123,22 +175,52 @@ function showHome() {
   document.getElementById("markdownContent").innerHTML = "";
   document.getElementById("tocToggle").classList.add("hidden");
   document.getElementById("searchElement").classList.add("hidden");
-  document.getElementById("titleBox").classList.remove("hidden");
-  document.getElementById("miniTitleBox").classList.add("hidden");
 }
 
 function showContent() {
+  document.getElementById("loading").classList.add("hidden");
   document.getElementById("defualt_empty").classList.add("hidden");
   document.getElementById("home").classList.add("hidden");
   document.getElementById("home").innerHTML = "";
   document.getElementById("content").classList.remove("hidden");
   document.getElementById("tocToggle").classList.remove("hidden");
   document.getElementById("searchElement").classList.remove("hidden");
-  document.getElementById("titleBox").classList.add("hidden");
-  document.getElementById("miniTitleBox").classList.remove("hidden");
+}
+
+function showTitleLoading() {
+  // 初始化标题加载占位符
+  document.getElementById("webTitle").innerHTML = buildTpl(loadingTpl, { height: "8", width: "1/4" });
+  document.getElementById("webDesc").innerHTML = buildTpl(loadingTpl, { height: "4", width: "1/4" });
+  document.getElementById("webNav").innerHTML = buildTpl(loadingTpl, { height: "4", width: "1/3" });
+}
+
+function showLoadding() {
+  document.getElementById("defualt_empty").classList.add("hidden");
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("home").innerHTML = "";
+  document.getElementById("content").classList.add("hidden");
+  document.getElementById("toc").innerHTML = "";
+  document.getElementById("markdownContent").innerHTML = "";
+  document.getElementById("tocToggle").classList.add("hidden");
+  document.getElementById("searchElement").classList.add("hidden");
+
+  // 初始化正文加载占位符
+  const loading = document.getElementById("loading")
+  // 生成3-6个随机大小的loading占位符
+  let loadingHtml = '';
+  const count = Math.floor(Math.random() * 4) + 3; // 3-6之间的随机数
+  for(let i = 0; i < count; i++) {
+    const height = Math.floor(Math.random() * 4) + 4; // 4-7之间的随机高度
+    const widthOptions = ['1/4', '1/3', '1/2', '2/3', '3/4', 'full'];
+    const width = widthOptions[Math.floor(Math.random() * widthOptions.length)];
+    loadingHtml += buildTpl(loadingTpl, { height: height.toString(), width: width }) + '<div class="h-4"></div>';
+  }
+  loading.innerHTML = loadingHtml;
+  loading.classList.remove("hidden");
 }
 
 function showDefault() {
+  document.getElementById("loading").classList.add("hidden");
   document.getElementById("defualt_empty").classList.remove("hidden");
   document.getElementById("home").classList.add("hidden");
   document.getElementById("home").innerHTML = "";
@@ -147,10 +229,15 @@ function showDefault() {
   document.getElementById("markdownContent").innerHTML = "";
   document.getElementById("tocToggle").classList.add("hidden");
   document.getElementById("searchElement").classList.add("hidden");
-  document.getElementById("titleBox").classList.remove("hidden");
-  document.getElementById("miniTitleBox").classList.add("hidden");
+  titleAnimate(true);
 }
 
 function isLogin() {
   return getCookie("token") !== null;
+}
+
+function buildTpl(tpl, data) {
+  return tpl.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
+    return data[key] !== undefined ? data[key] : "";
+  });
 }

@@ -27,27 +27,93 @@ const indexItemTpl = `
 </div>
 `;
 
+const navLinkTpl = `
+<a
+  href="#{{path}}"
+  class="nav-link text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
+  >{{title}}</a
+>
+`;
+const navDelimiterTpl = `
+<span class="nav-delimiter text-gray-600 dark:text-gray-300">|</span>
+`;
+
+const loadingTpl = `
+<div class="relative overflow-hidden bg-gray-300 dark:bg-gray-600 rounded h-{{height}} w-{{width}}">
+  <div class="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+</div>
+`;
+
 var originalContent;
 var htmlContent;
 var isEdit = false;
+var webOpen = false;
 
 // 根据路由激活页面内容
 function render() {
-  showDefault();
+  console.log("render");
+  if (webOpen === false) {
+    showDefault();
+    return;
+  }
+
   const hash = window.location.hash.slice(1);
   switch (hash) {
     case "":
     case "index":
     case "home":
+      titleAnimate(true);
       setupList();
       break;
     default:
+      titleAnimate(false);
       setupContent(hash);
       break;
   }
 }
 
+async function baseInfo() {
+  return getWebInfo().then((data) => {
+    if (data.code === 200) {
+      webOpen = data.data.open;
+
+      const webTitle = document.getElementById("webTitle");
+      webTitle.innerHTML = data.data.title;
+      const webDesc = document.getElementById("webDesc");
+      webDesc.innerHTML = data.data.desc;
+
+      let navLinkEle = [];
+      data.data.nav_list.forEach(item => {
+        navLinkEle.push(buildTpl(navLinkTpl, item));
+      });
+
+      const webNav = document.getElementById("webNav");
+      webNav.innerHTML = navLinkEle.join(navDelimiterTpl);
+    } else {
+      throw new Error(data.message);
+    }
+  }).catch((error) => {
+    throw error;
+  })
+}
+
 function init() {
+  showTitleLoading();
+  showLoadding();
+
+  baseInfo().then(() => {
+    // 渲染页面
+    render();
+  }).catch((error) => {
+    document.getElementById("webTitle").innerHTML = "加载失败";
+    document.getElementById("webDesc").innerHTML = "管理员可能提桶跑路了";
+    document.getElementById("webNav").innerHTML = "";
+
+    showMsg("加载失败,"+error.message);
+    console.error(error);
+    showDefault();
+  });
+
   // 目录显示按钮初始化
   const tocToggle = document.getElementById("tocToggle");
   tocToggle.addEventListener("click", function () {
@@ -62,7 +128,7 @@ function init() {
 
   // 登录按钮显示动作初始化
   const pageFlipContainer = document.getElementById("pageFlipContainer");
-  pageFlipContainer.addEventListener('mouseenter', function() {
+  pageFlipContainer.addEventListener("mouseenter", function () {
     const foldEffect = document.getElementById("foldEffect");
     foldEffect.classList.add("show-flod-effect");
     const loginButton = document.getElementById("loginButton");
@@ -127,26 +193,24 @@ function setupList() {
     }
 
     let html = "";
+    let subhtml = "";
     data.forEach((item) => {
-      let subhtml = "";
 
       item.item.forEach((item) => {
-        subhtml += indexItemTpl.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
-          return item[key] !== undefined ? item[key] : "";
-        });
+        subhtml += buildTpl(indexItemTpl, item)
       });
 
-      html += indexTpl.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
-        if (key === "item") {
-          return subhtml;
-        } else {
-          return item[key] !== undefined ? item[key] : "";
-        }
-      });
+      item.item = subhtml;
+
+      html += buildTpl(indexTpl, item)
     });
 
     document.getElementById("home").innerHTML = html;
     showHome();
+  }).catch((error) => {
+    showMsg("加载失败");
+    console.error(error);
+    showDefault();
   });
 }
 
@@ -329,8 +393,7 @@ function setupContent(route) {
   getContent(route).then((data) => {
     if (data.code !== 200) {
       showMsg(data.message);
-    } else if (data.data == undefined) {
-      return;
+      showDefault();
     } else {
       const title = document.getElementById("title");
       title.innerHTML = data.data.title;
@@ -346,8 +409,12 @@ function setupContent(route) {
       setupDel(route);
 
       // 显示正文
-      showContent();
     }
+    showContent();
+  }).catch((error) => {
+    showMsg("加载失败");
+    console.error(error);
+    showDefault();
   });
 }
 
@@ -482,12 +549,14 @@ function setupLogin() {
           refresh();
         });
       }
+    }).catch((error) => {
+      showMsg("登录失败");
+      console.error(error);
     });
   });
   initModal("logout", async function () {
+    deleteCookie("token");
     logout().then((data) => {
-      deleteCookie("token");
-
       if (data.code === 200) {
         loginButton.classList.remove("hidden");
         logoutButton.classList.add("hidden");
@@ -499,6 +568,10 @@ function setupLogin() {
         showMsg(data.message);
         closedModal("logoutModal");
       }
+    }).catch((error) => {
+      showMsg("请求失败");
+      closedModal("logoutModal");
+      console.error(error);
     });
   });
 }
@@ -535,12 +608,13 @@ function renderMath() {
 }
 
 // 监听哈希变化事件
-window.addEventListener("hashchange", render);
+window.addEventListener("hashchange", function () {
+  showLoadding();
+  render();
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   init();
-  // 渲染页面
-  render();
   // 设置搜索框
   setupSearch();
   // 设置暗黑模式

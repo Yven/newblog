@@ -1,44 +1,90 @@
 var path = "http://localhost:8980";
 
+// 封装通用的 HTTP 请求方法
+async function request(url, options = {}) {
+  try {
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    // 如果需要认证，添加 token
+    if (options.needAuth) {
+      defaultOptions.headers.Authorization = "Bearer " + getCookie("token");
+      delete options.needAuth;
+    }
+
+    const response = await fetch(path + url, {
+      ...defaultOptions,
+      ...options
+    });
+
+    if (!response.ok) {
+      throw new Error('网络请求失败');
+    }
+
+    return response.json();
+  } catch (error) {
+    throw error;
+  }
+}
+
+// 封装 GET 请求
+async function get(url, options = {}) {
+  return request(url, { method: 'GET', ...options });
+}
+
+// 封装 POST 请求
+async function post(url, data, options = {}) {
+  return request(url, {
+    method: 'POST',
+    body: data,
+    ...options
+  });
+}
+
+// 封装 DELETE 请求
+async function del(url, options = {}) {
+  return request(url, {
+    method: 'DELETE',
+    ...options
+  });
+}
+
+// -----------------
+
+// 获取网站基本信息
+async function getWebInfo() {
+  return get('/web/info');
+}
+
+// 用户登录
 async function login(formData) {
-    return fetch(path + "/login", {
-        method: "POST",
-        body: formData,
-    }).then((response) => response.json())
+  return post('/login', formData);
 }
 
+// 用户登出
 async function logout() {
-  return fetch(path + "/logout", {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + getCookie("token"),
-    },
-  }).then((response) => response.json());
+  return post('/logout', null, { needAuth: true });
 }
 
+// 获取文章列表
 async function getList() {
-  return fetch(path + "/list").then((response) => response.json());
+  return get('/list');
 }
 
+// 获取指定文章内容
 async function getContent(route) {
-  return fetch(path + "/content/" + route).then((response) => response.json());
+  return get(`/content/${route}`);
 }
 
+// 编辑文章内容
 async function editedContent(route, formData) {
-  return fetch(path + "/content/" + route, {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + getCookie("token"),
-    },
-    body: formData,
-  }).then((response) => response.json());
+  return post(`/content/${route}`, formData, { needAuth: true });
 }
 
+// 删除文章
 async function deleteContent(route) {
-  return fetch(path + "/content/" + route, {
-    method: "DELETE",
-    headers: {
-      Authorization: "Bearer " + getCookie("token"),
-    },
-  }).then((response) => response.json());
+  return del(`/content/${route}`, { needAuth: true });
 }

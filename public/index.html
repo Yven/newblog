@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blog</title>
-    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="./lib/tailwindcss-3.4.16.js"></script>
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -27,36 +27,18 @@
         },
       };
     </script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/default.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked-gfm-heading-id@4.1.1/lib/index.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked-mangle@1.1.10/lib/index.umd.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css"
-      integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP"
-      crossorigin="anonymous"
-    />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"
-      integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
-      integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-      crossorigin="anonymous"
-    ></script>
+
+    <link rel="stylesheet" href="./lib/remixicon/remixicon.min.css" />
+
+    <link rel="stylesheet" href="./lib/marked/highlight-default.min.css" />
+    <script src="./lib/marked/highlight.min.js"></script>
+    <script src="./lib/marked/marked.min.js"></script>
+    <script src="./lib/marked/marked-gfm-heading-id.umd.min.js"></script>
+    <script src="./lib/marked/marked-mangle.umd.min.js"></script>
+
+    <link rel="stylesheet" href="./lib/katex/katex.min.css" />
+    <script defer src="./lib/katex/katex.min.js"></script>
+    <script defer src="./lib/katex/katex-auto-render.min.js"></script>
 
     <style>
       :where([class^="ri-"])::before {
@@ -76,51 +58,22 @@
         id="fullContainer"
         class="relative bg-white dark:bg-gray-800 shadow-md rounded-lg p-8 pb-0"
       >
-        <div id="titleBox">
-          <h1
-            class="text-4xl font-bold text-black dark:text-gray-400 text-center mb-6"
-          >
-            那人的庭院
-          </h1>
-          <div class="text-center text-gray-400 text-sm mb-4">
-            人生如逆旅，我亦是行人。
-          </div>
-          <div class="flex justify-center space-x-4 mb-8">
-            <a
-              href="#home"
-              class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
-              >首页</a
+        <div id="titleBox" class="transition-all duration-300 ease-in-out flex items-center justify-center flex-col space-y-6 mb-8">
+          <div class="flex items-center justify-center flex-col space-y-4 w-full">
+            <div
+              id="webTitle"
+              class="transition-all duration-300 ease-in-out flex items-center justify-center flex-col w-full"
             >
-            <span class="text-gray-600 dark:text-gray-300">/</span>
-            <a
-              href="#about"
-              class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
-              >关于</a
-            >
+            </div>
+            <div id="webDesc" class="transition-all duration-300 ease-in-out flex items-center text-gray-400 text-sm justify-center flex-col w-full">
+            </div>
           </div>
-        </div>
-        <div id="miniTitleBox" class="flex items-center justify-center hidden">
-          <span
-            class="absolute top-[2.15rem] text-xl font-bold text-black dark:text-gray-400"
-          >
-            那人的庭院
-          </span>
-          <div class="absolute top-24 -left-[1.2rem] overflow-hidden">
-            <div class="flex flex-col space-y-2 text-xs leading-[0.75]">
-              <a
-                href="#home"
-                class="bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2"
-                >首页</a
-              >
-              <a
-                href="#about"
-                class="bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2"
-                >关于</a
-              >
+          <div id="webNavFloat" class="top-24 -left-[1.2rem] overflow-hidden w-full">
+            <div id="webNav" class="flex justify-center space-x-4">
             </div>
           </div>
         </div>
-        <div class="flex mb-4">
+        <div id="page" class="flex flex-col mb-4 transition-all duration-500 ease-in-out motion-safe:animate-[fadeIn_0.3s_ease-in-out]">
           <div class="w-full">
             <div
               class="flex justify-between items-center pb-2 border-b border-gray-400"
@@ -142,7 +95,7 @@
               <div id="searchElement" class="relative flex">
                 <button
                   id="searchButton"
-                  class="absolute z-10 w-8 h-8 flex items-center justify-center rounded-full dark:text-gray-200"
+                  class="transition-all duration-300 ease-in-out absolute z-10 w-8 h-8 flex items-center justify-center rounded-full dark:text-gray-200"
                 >
                   <i class="ri-search-line"></i>
                 </button>
@@ -150,10 +103,12 @@
                   type="text"
                   id="searchInput"
                   placeholder=""
-                  class="w-8 h-8 pl-7 rounded-full text-xs border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:placeholder-gray-400"
+                  class="transition-all duration-300 ease-in-out w-8 h-8 pl-7 rounded-full text-xs border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:placeholder-gray-400"
                 />
               </div>
             </div>
+
+            <div id="loading" class="w-full pt-8 hidden"></div>
 
             <div
               id="defualt_empty"
@@ -188,7 +143,7 @@
               </div>
               <div
                 id="tocContainer"
-                class="xl:fixed xl:left-20 xl:top-20 xl:w-48 text-wrap md:col-span-6"
+                class="xl:fixed xl:left-20 xl:top-20 xl:w-48 text-wrap md:col-span-6 col-span-12"
               >
                 <div
                   class="sticky top-4 p-4 pl-8 bg-gray-100 dark:bg-gray-700 rounded-lg"
@@ -503,11 +458,11 @@
       .text-vertical {
         writing-mode: vertical-lr;
       }
-      #searchButton {
-        transition: all 0.3s ease;
-      }
-      #searchInput {
-        transition: all 0.3s ease;
+
+      @keyframes shimmer {
+        100% {
+          transform: translateX(100%);
+        }
       }
     </style>
 
