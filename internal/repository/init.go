@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS article(
 	title TEXT NOT NULL,
 	content TEXT NOT NULL,
 	cid INTEGER DEFAULT 0,
-	create_time TEXT NOT NULL DEFAULT (datetime('now')),
-	update_time TEXT NOT NULL DEFAULT (datetime('now')),
-	delete_time TEXT
+	create_time INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+	update_time INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+	delete_time INTEGER
 );
 CREATE TABLE IF NOT EXISTS category(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,

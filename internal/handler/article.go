@@ -44,9 +44,16 @@ func (h *ArticleHandler) Info(c *gin.Context) {
 
 func (h *ArticleHandler) Edit(c *gin.Context) {
 	slug := c.Param("slug")
-	newContent := c.PostForm("content")
 
-	err := h.articleService.Edit(slug, newContent)
+	var data struct {
+		Content string `json:"content"`
+	}
+	if err := c.ShouldBindJSON(&data); err != nil {
+		util.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	err := h.articleService.Edit(slug, data.Content)
 
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)

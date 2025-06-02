@@ -215,8 +215,8 @@ async function setupList(keyword) {
     }
 
     let html = "";
-    let subhtml = "";
     data.forEach((item) => {
+      let subhtml = "";
 
       item.item.forEach((item) => {
         subhtml += buildTpl(indexItemTpl, item)

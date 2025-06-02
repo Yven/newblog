@@ -9,6 +9,15 @@ async function request(url, options = {}) {
       }
     };
 
+    if (options.method === 'POST' && options.body instanceof FormData) {
+      let formData = options.body;
+      let formJson = {};
+      for (let [key, value] of formData.entries()) {
+        formJson[key] = value;
+      }
+      options.body = JSON.stringify(formJson);
+    }
+
     // 如果需要认证，添加 token
     if (options.needAuth) {
       defaultOptions.headers.Authorization = "Bearer " + getCookie("token");
