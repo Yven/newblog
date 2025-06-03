@@ -4,7 +4,7 @@ RUN apk add --no-cache alpine-sdk
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go env -w GOPROXY=https://goproxy.cn,direct && go mod download
 
 COPY . .
 
