@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prod
+    container_name: goserver
     restart: always
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
@@ -14,9 +15,10 @@ services:
       - ./.env:/app/.env
       - ./db:/app/db
       - ./internal/config/config.yml:/app/internal/config/config.yml
+    networks:
+      - shared_net
 
 networks:
-  default:
-    driver: bridge
-    ipam:
-      driver: default
+  shared_net:
+    external: true
+    name: ${DOCKER_SHARED_NET}
