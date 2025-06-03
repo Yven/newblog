@@ -9,6 +9,8 @@
 5. remixicon
 
 ### 运行
+配置 `public/static/basic.js` 文件，修改 `path` 为后端接口地址，
+`cp ./basic.js.sample ./public/static/basic.js`
 直接访问 `public/index.html`
 
 ## 后端
@@ -17,7 +19,7 @@
 2. SQLite
 
 ### 运行
-首先配置 `.env` 文件，
+配置 `.env` 文件，
 ```shell
 cp env.sample .env
 vim .env

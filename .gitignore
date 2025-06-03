@@ -7,6 +7,8 @@
 
 db/*
 
+public/static/basic.js
+
 # Test binary, built with "go test -c"
 *.test
 

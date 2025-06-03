@@ -1,5 +1,3 @@
-var path = "http://localhost:8980";
-
 // 封装通用的 HTTP 请求方法
 async function request(url, options = {}) {
   try {
