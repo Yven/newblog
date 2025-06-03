@@ -14,8 +14,8 @@ var Global *model.Config
 
 func InitConfig() {
 	defaultPath := "./internal/config"
-	// 加载 .env 文件（如果存在）
-	_ = godotenv.Load(defaultPath + "/.env")
+	// 加载 .env 文件（如果存在）（默认读根目录）
+	_ = godotenv.Load("./.env")
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")

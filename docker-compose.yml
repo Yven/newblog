@@ -4,14 +4,19 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prod
-    restart: unless-stopped
+    restart: always
     ports:
-      - ${PORT}:${PORT}
+      - ${SERVER_PORT}:${SERVER_PORT}
     environment:
       APP_ENV: ${APP_ENV}
-      PORT: ${PORT}
-      BLUEPRINT_DB_URL: ${BLUEPRINT_DB_URL}
+      SERVER_PORT: ${SERVER_PORT}
     volumes:
-      - sqlite_bp:/app/db
-volumes:
-  sqlite_bp:
+      - ./.env:/app/.env
+      - ./db:/app/db
+      - ./internal/config/config.yml:/app/internal/config/config.yml
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default

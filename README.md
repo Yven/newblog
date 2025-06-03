@@ -1,53 +1,33 @@
-# Project newblog
+# Blog
 
-One Paragraph of project description goes here
+## 前端
+### 框架&依赖
+1. 原生 JS
+2. Tailwind CSS
+3. Marked(highlight)
+4. katex
+5. remixicon
 
-## Getting Started
+### 运行
+直接访问 `public/index.html`
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+## 后端
+### 框架&依赖
+1. Gin
+2. SQLite
 
-## MakeFile
-
-Run build make command with tests
-```bash
-make all
+### 运行
+首先配置 `.env` 文件，
+```shell
+cp env.sample .env
+vim .env
 ```
-
-Build the application
-```bash
-make build
-```
-
-Run the application
-```bash
+然后执行
+```shell
 make run
 ```
-Create DB container
-```bash
+或者使用 docker 运行：
+```shell
 make docker-run
 ```
-
-Shutdown DB Container
-```bash
-make docker-down
-```
-
-DB Integrations Test:
-```bash
-make itest
-```
-
-Live reload the application:
-```bash
-make watch
-```
-
-Run the test suite:
-```bash
-make test
-```
-
-Clean up binary from the last build:
-```bash
-make clean
-```
+详细查看`Makefile`文件

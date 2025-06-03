@@ -1,0 +1,29 @@
+name: Go-Deploy
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.x'
+
+      - name: Build And Test
+        run: make all
+
+      - name: Remote Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/dnmp2/www/newblog && git pull origin main
+            docker-compose down && docker-compose up --build -d

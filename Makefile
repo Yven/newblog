@@ -5,9 +5,11 @@ all: build test
 
 build:
 	@echo "Building..."
-	
-	
 	@CGO_ENABLED=1 GOOS=linux go build -o main cmd/api/main.go
+
+mbuild:
+	@echo "Building..."
+	@go build -o main cmd/api/main.go
 
 # Run the application
 run:
