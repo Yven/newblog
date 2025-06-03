@@ -26,4 +26,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/dnmp2/www/newblog && git pull origin main
-            docker-compose down && docker-compose up --build -d
+            docker-compose rm -sf goserver && docker-compose up --build -d
