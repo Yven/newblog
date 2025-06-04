@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"newblog/internal/model"
 	"strings"
@@ -26,6 +27,11 @@ func InitConfig() {
 	// 支持通过环境变量覆盖配置
 	viper.AutomaticEnv()
 
+	// 将SERVER_ADDR环境变量按逗号分割为字符串数组
+	if addr := viper.GetString("SERVER_ADDR"); addr != "" {
+		viper.Set("server.addr", strings.Split(addr, ","))
+	}
+
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("读取配置文件失败: %v", err)
 	}
@@ -38,6 +44,7 @@ func InitConfig() {
 		}
 
 		Global = &newConfig
+		fmt.Println(Global)
 		log.Println("配置已热更新")
 	}
 

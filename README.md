@@ -9,9 +9,11 @@
 5. remixicon
 
 ### 运行
-配置 `public/static/basic.js` 文件，修改 `path` 为后端接口地址，
-`cp ./basic.js.sample ./public/static/basic.js`
-直接访问 `public/index.html`
+1. 配置 `public/static/basic.js` 文件，修改 `path` 为后端接口地址
+   ```shell
+   cp ./basic.js.sample ./public/static/basic.js
+   ```
+2. 直接访问 `public/index.html`
 
 ## 后端
 ### 框架&依赖
@@ -19,17 +21,18 @@
 2. SQLite
 
 ### 运行
-配置 `.env` 文件，
-```shell
-cp env.sample .env
-vim .env
-```
-然后执行
-```shell
-make run
-```
-或者使用 docker 运行：
-```shell
-make docker-run
-```
+1. 配置 `.env` 文件
+   ```shell
+   cp env.sample .env
+   vim .env
+   ```
+2. 执行
+   ```shell
+   make run
+   ```
+   或者使用 docker 运行：
+   ```shell
+   make docker-run
+   ```
+
 详细查看`Makefile`文件

@@ -1,6 +1,7 @@
 server:
   port: 80
-  addr: "*"
+  addr:
+    - "http://localhost:8080"
 
 web:
   open: true
@@ -9,13 +10,16 @@ web:
   nav_list:
     -
       title: "首页"
-      path: ""
-    -
-      title: "Memos"
-      path: "memos"
+      path: "#"
     -
       title: "关于"
-      path: "about"
+      path: "#about"
+    -
+      title: "Memos"
+      path: "http://yvenchang.cn:4200"
+    -
+      title: "Trending"
+      path: "https://yvenchang.cn/today.html"
 
 database:
   host: "localhost"

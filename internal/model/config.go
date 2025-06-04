@@ -2,8 +2,8 @@ package model
 
 type Config struct {
 	Server struct {
-		Port int    `mapstructure:"port"`
-		Addr string `mapstructure:"addr"`
+		Port int      `mapstructure:"port"`
+		Addr []string `mapstructure:"addr"`
 	} `mapstructure:"server"`
 
 	Web struct {

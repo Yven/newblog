@@ -29,7 +29,8 @@ const indexItemTpl = `
 
 const navLinkTpl = `
 <a
-  href="#{{path}}"
+  href="{{path}}"
+  target="{{blank}}"
   class="nav-link text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
   >{{title}}</a
 >
@@ -82,7 +83,17 @@ async function baseInfo() {
       webDesc.innerHTML = data.data.desc;
 
       let navLinkEle = [];
-      data.data.nav_list.forEach(item => {
+      let navList = data.data.nav_list;
+      // 判断链接是否为外部链接,设置target属性
+      navList = navList.map(item => {
+        if (item.path.startsWith('http://') || item.path.startsWith('https://')) {
+          item.blank = 'blank';
+        } else {
+          item.blank = '';
+        }
+        return item;
+      });
+      navList.forEach(item => {
         navLinkEle.push(buildTpl(navLinkTpl, item));
       });
 
@@ -178,9 +189,8 @@ function init() {
       searchInput.classList.remove("w-[4.5rem]");
       searchInput.classList.add("w-8");
       searchInput.placeholder = "";
-    } else {
-      search(searchInput.value);
     }
+    search(searchInput.value);
   });
   searchInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
@@ -192,10 +202,6 @@ function init() {
 }
 
 function search (searchTerm) {
-  if (searchTerm.trim() === "") {
-    return;
-  }
-
   if (isHome()) {
     setupList(searchTerm).then(() => {
       highlightContent("home", searchTerm);
