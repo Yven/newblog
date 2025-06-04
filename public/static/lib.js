@@ -145,14 +145,13 @@ function titleAnimate(show) {
   const webNav = document.getElementById("webNav");
   webNav.className =
     show
-    ? "flex justify-center space-x-4"
+    ? "flex justify-center items-center space-x-4 flex-wrap"
     : "flex flex-col space-y-2 text-xs leading-[0.75]";
 
   const navLinks = document.querySelectorAll('.nav-link');
   navLinks.forEach(link => {
-    link.className =
-      show
-      ? "nav-link text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
+    link.className = show
+      ? "nav-link text-nowrap sm:text-base text-sm text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
       : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2";
   });
 

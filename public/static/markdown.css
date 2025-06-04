@@ -8,7 +8,7 @@
 .dark .markdown-body h4,
 .dark .markdown-body h5,
 .dark .markdown-body h6 {
-  color: #e5e7ebc7;
+  color: #d4d6dbc7;
 }
 
 .markdown-body h1 {
@@ -55,6 +55,7 @@
 
 .markdown-body p {
   margin-bottom: 1rem;
+  line-height: 2rem;
 }
 
 .markdown-body ul,
@@ -148,7 +149,7 @@
 .dark .markdown-body pre,
 .dark .markdown-body code {
   background-color: #151b25;
-  color: #e5e7eb;
+  color: #adafb5c7;
 }
 
 .dark .markdown-body blockquote {

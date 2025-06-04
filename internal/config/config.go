@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"newblog/internal/model"
 	"strings"
@@ -44,7 +43,6 @@ func InitConfig() {
 		}
 
 		Global = &newConfig
-		fmt.Println(Global)
 		log.Println("配置已热更新")
 	}
 

@@ -3,13 +3,16 @@
 # Build the application
 all: build test
 
-build:
-	@echo "Building..."
-	@CGO_ENABLED=1 GOOS=linux go build -o main cmd/api/main.go
+UNAME_S := $(shell uname)
 
-mbuild:
-	@echo "Building..."
+build:
+ifeq ($(UNAME_S),Linux)
+	@echo "Building For Linux..."
+	@CGO_ENABLED=1 GOOS=linux go build -o main cmd/api/main.go
+else
+	@echo "Building For Other System..."
 	@go build -o main cmd/api/main.go
+endif
 
 # Run the application
 run:

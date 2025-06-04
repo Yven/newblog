@@ -7,7 +7,7 @@ marked.use(gfmHeadingId({ prefix: "yven-header-" }), mangle(), {
 
 const indexTpl = `
 <div class="py-2">
-  <h3 class="text-lg font-semibold text-primary mb-3">
+  <h3 class="sm:text-lg text-md font-semibold text-primary mb-3">
     {{year}}
     {{item}}
   </h3>
@@ -15,14 +15,14 @@ const indexTpl = `
 `;
 
 const indexItemTpl = `
-<div class="ml-8 py-2 space-y-3">
+<div class="ml-4 py-2 space-y-6">
   <div class="flex justify-between items-center">
-    <a href="#{{slug}}" class="text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-gray-100">
-      <span class="text-sm text-gray-500 dark:text-gray-400 mr-3">{{category}}</span>
+    <span class="text-nowrap text-sm text-gray-400 dark:text-gray-600 mr-3">{{category}}</span>
+    <a href="#{{slug}}" class="text-gray-800 dark:text-gray-400 hover:text-primary dark:hover:text-gray-300">
       {{title}}
     </a>
     <div class="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
-    <span class="text-sm text-gray-500 dark:text-gray-400">{{date}}</span>
+    <span class="text-nowrap text-sm text-gray-400 dark:text-gray-400">{{date}}</span>
   </div>
 </div>
 `;
