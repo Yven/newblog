@@ -73,56 +73,75 @@ function render() {
 }
 
 async function baseInfo() {
-  return getWebInfo().then((data) => {
-    if (data.code === 200) {
-      webOpen = data.data.open;
+  return getWebInfo()
+    .then((data) => {
+      if (data.code === 200) {
+        webOpen = data.data.open;
 
-      const webTitle = document.getElementById("webTitle");
-      webTitle.innerHTML = data.data.title;
-      const webDesc = document.getElementById("webDesc");
-      webDesc.innerHTML = data.data.desc;
+        const webTitle = document.getElementById("webTitle");
+        webTitle.innerHTML = data.data.title;
+        document.title = data.data.title;
+        const webDesc = document.getElementById("webDesc");
+        webDesc.innerHTML = data.data.desc;
 
-      let navLinkEle = [];
-      let navList = data.data.nav_list;
-      // 判断链接是否为外部链接,设置target属性
-      navList = navList.map(item => {
-        if (item.path.startsWith('http://') || item.path.startsWith('https://')) {
-          item.blank = 'blank';
-        } else {
-          item.blank = '';
-        }
-        return item;
-      });
-      navList.forEach(item => {
-        navLinkEle.push(buildTpl(navLinkTpl, item));
-      });
+        let navLinkEle = [];
+        let navList = data.data.nav_list;
+        // 判断链接是否为外部链接,设置target属性
+        navList = navList.map((item) => {
+          if (
+            item.path.startsWith("http://") ||
+            item.path.startsWith("https://")
+          ) {
+            item.blank = "blank";
+          } else {
+            item.blank = "";
+          }
+          return item;
+        });
+        navList.forEach((item) => {
+          navLinkEle.push(buildTpl(navLinkTpl, item));
+        });
 
-      const webNav = document.getElementById("webNav");
-      webNav.innerHTML = navLinkEle.join(navDelimiterTpl);
-    } else {
-      throw new Error(data.message);
-    }
-  }).catch((error) => {
-    throw error;
-  })
+        const webNav = document.getElementById("webNav");
+        webNav.innerHTML = navLinkEle.join(navDelimiterTpl);
+      } else {
+        throw new Error(data.message);
+      }
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
+function timer() {
+  const urodz = new Date("09/06/2022");
+  const now = new Date();
+  const ile = now.getTime() - urodz.getTime();
+  const dni = Math.floor(ile / (1000 * 60 * 60 * 24));
+
+  document.getElementById("timer").innerHTML = dni;
 }
 
 function init() {
+  timer();
+
   showTitleLoading();
   showLoadding();
 
-  baseInfo().then(() => {
-    // 渲染页面
-    render();
-  }).catch((error) => {
-    document.getElementById("webTitle").innerHTML = "加载失败";
-    document.getElementById("webDesc").innerHTML = "管理员可能提桶跑路了";
-    document.getElementById("webNav").innerHTML = "";
+  baseInfo()
+    .then(() => {
+      // 渲染页面
+      render();
+    })
+    .catch((error) => {
+      document.getElementById("webTitle").innerHTML = "加载失败";
+      document.getElementById("webDesc").innerHTML = "管理员可能提桶跑路了";
+      document.getElementById("webNav").innerHTML = "";
 
-    showMsg("加载失败,"+error.message);
-    console.error(error);
-    showDefault();
-  });
+      showMsg("加载失败," + error.message);
+      console.error(error);
+      showDefault();
+    });
 
   // 目录显示按钮初始化
   const tocToggle = document.getElementById("tocToggle");
@@ -158,7 +177,8 @@ function init() {
   // 滚动到底部自动显示登录按钮
   let docEl = document.documentElement;
   // 浏览器可视部分的高度
-  let clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+  let clientHeight =
+    document.documentElement.clientHeight || document.body.clientHeight;
   window.addEventListener("scroll", function () {
     // 页面中内容的总高度
     let docELHeight = docEl.scrollHeight;
@@ -167,7 +187,7 @@ function init() {
     // 页面上滚动到底部的条件
     if (scrollTop >= docELHeight - clientHeight) {
       // 页面内已经滚动的距离 = 页面中内容的总高度 - 浏览器可视部分的高度
-      pageFlipContainer.dispatchEvent(new MouseEvent('mouseenter'));
+      pageFlipContainer.dispatchEvent(new MouseEvent("mouseenter"));
     } else {
       pageFlipContainer.dispatchEvent(new MouseEvent("mouseleave"));
     }
@@ -198,10 +218,10 @@ function init() {
       search(searchInput.value);
       return;
     }
-  })
+  });
 }
 
-function search (searchTerm) {
+function search(searchTerm) {
   if (isHome()) {
     setupList(searchTerm).then(() => {
       highlightContent("home", searchTerm);
@@ -212,34 +232,36 @@ function search (searchTerm) {
 }
 
 async function setupList(keyword) {
-  return getList(keyword).then((res) => {
-    let data = res.data;
+  return getList(keyword)
+    .then((res) => {
+      let data = res.data;
 
-    if (!data || data.length === 0) {
-      showDefault();
-      return;
-    }
+      if (!data || data.length === 0) {
+        showDefault();
+        return;
+      }
 
-    let html = "";
-    data.forEach((item) => {
-      let subhtml = "";
+      let html = "";
+      data.forEach((item) => {
+        let subhtml = "";
 
-      item.item.forEach((item) => {
-        subhtml += buildTpl(indexItemTpl, item)
+        item.item.forEach((item) => {
+          subhtml += buildTpl(indexItemTpl, item);
+        });
+
+        item.item = subhtml;
+
+        html += buildTpl(indexTpl, item);
       });
 
-      item.item = subhtml;
-
-      html += buildTpl(indexTpl, item)
+      document.getElementById("home").innerHTML = html;
+      showHome();
+    })
+    .catch((error) => {
+      showMsg("加载失败");
+      console.error(error);
+      showDefault();
     });
-
-    document.getElementById("home").innerHTML = html;
-    showHome();
-  }).catch((error) => {
-    showMsg("加载失败");
-    console.error(error);
-    showDefault();
-  });
 }
 
 function setupCodeCopyButtons() {
@@ -368,7 +390,7 @@ function setupEdit(route) {
     editTextarea.innerHTML = "";
     markdownContent.classList.remove("hidden");
     renderContent(originalContent);
-  })
+  });
   editForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const formData = new FormData(editForm);
@@ -405,7 +427,9 @@ function setupDel(route) {
 function renderContent(content) {
   const markdownContent = document.getElementById("markdownContent");
   htmlContent = marked.parse(content);
-  markdownContent.innerHTML = htmlContent
+  // 渲染数学公式
+  htmlContent = renderMath(htmlContent);
+  markdownContent.innerHTML = htmlContent;
 
   // 设置复制按钮
   setupCodeCopyButtons();
@@ -413,37 +437,38 @@ function renderContent(content) {
   setupToc();
   // 代码段高亮
   hljs.highlightAll();
-  // 渲染数学公式
-  renderMath();
 }
 
 function setupContent(route) {
-  getContent(route).then((data) => {
-    if (data.code !== 200) {
-      showMsg(data.message);
+  getContent(route)
+    .then((data) => {
+      if (data.code !== 200) {
+        showMsg(data.message);
+        showDefault();
+      } else {
+        const title = document.getElementById("title");
+        title.innerHTML = data.data.title;
+        document.title = data.data.title;
+        const time = document.getElementById("time");
+        time.innerHTML = data.data.create_time;
+
+        originalContent = data.data.content;
+        renderContent(originalContent);
+
+        // 设置编辑按钮
+        setupEdit(route);
+        // 设置删除按钮
+        setupDel(route);
+
+        // 显示正文
+      }
+      showContent();
+    })
+    .catch((error) => {
+      showMsg("加载失败");
+      console.error(error);
       showDefault();
-    } else {
-      const title = document.getElementById("title");
-      title.innerHTML = data.data.title;
-      const time = document.getElementById("time");
-      time.innerHTML = data.data.create_time;
-
-      originalContent = data.data.content;
-      renderContent(originalContent);
-
-      // 设置编辑按钮
-      setupEdit(route);
-      // 设置删除按钮
-      setupDel(route);
-
-      // 显示正文
-    }
-    showContent();
-  }).catch((error) => {
-    showMsg("加载失败");
-    console.error(error);
-    showDefault();
-  });
+    });
 }
 
 function setupMsgModal() {
@@ -464,14 +489,20 @@ function setupDarkMode() {
   }
   if (isDarkMode) {
     htmlElement.classList.toggle("dark");
-    darkModeToggle.innerHTML = '<i class="ri-moon-line"></i>';
+    document.getElementById("sunIcon").classList.add("hidden");
+    document.getElementById("moonIcon").classList.remove("hidden");
     updateDarkModeStyles(true);
   }
   darkModeToggle.addEventListener("click", function () {
     const isDark = htmlElement.classList.toggle("dark");
     localStorage.theme = isDark ? "dark" : "light";
-    darkModeToggle.innerHTML =
-      '<i class="ri-' + (isDark ? "moon" : "sun") + '-line"></i>';
+    if (isDark) {
+      document.getElementById("sunIcon").classList.add("hidden");
+      document.getElementById("moonIcon").classList.remove("hidden");
+    } else {
+      document.getElementById("sunIcon").classList.remove("hidden");
+      document.getElementById("moonIcon").classList.add("hidden");
+    }
     updateDarkModeStyles(isDark);
   });
 }
@@ -511,42 +542,46 @@ function setupLogin() {
 
   initModal("login", async function () {
     const formData = new FormData(loginForm);
-    return login(formData).then((data) => {
-      if (data.code !== 200 || data.data.token === undefined) {
-        showMsg(data.message);
-      } else {
-        setCookie("token", data.data.token, data.data.exp);
-        loginButton.classList.add("hidden");
-        logoutButton.classList.remove("hidden");
+    return login(formData)
+      .then((data) => {
+        if (data.code !== 200 || data.data.token === undefined) {
+          showMsg(data.message);
+        } else {
+          setCookie("token", data.data.token, data.data.exp);
+          loginButton.classList.add("hidden");
+          logoutButton.classList.remove("hidden");
 
-        closedModal("loginModal").then(() => {
-          refresh();
-        });
-      }
-    }).catch((error) => {
-      showMsg("登录失败");
-      console.error(error);
-    });
+          closedModal("loginModal").then(() => {
+            refresh();
+          });
+        }
+      })
+      .catch((error) => {
+        showMsg("登录失败");
+        console.error(error);
+      });
   });
   initModal("logout", async function () {
     deleteCookie("token");
-    logout().then((data) => {
-      if (data.code === 200) {
-        loginButton.classList.remove("hidden");
-        logoutButton.classList.add("hidden");
+    logout()
+      .then((data) => {
+        if (data.code === 200) {
+          loginButton.classList.remove("hidden");
+          logoutButton.classList.add("hidden");
 
-        closedModal("logoutModal").then(() => {
-          refresh();
-        });
-      } else {
-        showMsg(data.message);
+          closedModal("logoutModal").then(() => {
+            refresh();
+          });
+        } else {
+          showMsg(data.message);
+          closedModal("logoutModal");
+        }
+      })
+      .catch((error) => {
+        showMsg("请求失败");
         closedModal("logoutModal");
-      }
-    }).catch((error) => {
-      showMsg("请求失败");
-      closedModal("logoutModal");
-      console.error(error);
-    });
+        console.error(error);
+      });
   });
 }
 
@@ -570,15 +605,27 @@ function setupBackToTop() {
   });
 }
 
-function renderMath() {
+function renderMath(htmlContent) {
   // 渲染数学公式
-  renderMathInElement(document.getElementById("markdownContent"), {
-    delimiters: [
-      { left: "$$", right: "$$", display: true },
-      { left: "$", right: "$", display: false },
-    ],
-    throwOnError: false,
-  });
+  const latexRegex = /\$\$([\s\S]*?)\$\$|\$((?!\$).*?)\$/g;
+  const matches = htmlContent.match(latexRegex);
+
+  if (matches) {
+    matches.forEach((match) => {
+      const isBlock = match.startsWith("$$");
+      const formula = isBlock ? match.slice(2, -2) : match.slice(1, -1);
+      const encodedFormula = encodeURIComponent(formula);
+      const imgUrl = `https://latex.codecogs.com/svg.image?${encodedFormula}`;
+
+      const imgTag = isBlock
+        ? `<div class="text-center"><img class="math-img" src="${imgUrl}" alt="${formula}" class="inline-block my-2"/></div>`
+        : `<img class="math-img" src="${imgUrl}" alt="${formula}" class="inline-block" style="vertical-align: middle;"/>`;
+
+      htmlContent = htmlContent.replace(match, imgTag);
+    });
+  }
+
+  return htmlContent;
 }
 
 // 监听哈希变化事件

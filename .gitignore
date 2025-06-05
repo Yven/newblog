@@ -8,6 +8,9 @@
 db/*
 !db/init.sql
 
+public/input.css
+public/tailwind.config.js
+public/tailwindcss
 public/static/basic.js
 
 # Test binary, built with "go test -c"

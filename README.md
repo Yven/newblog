@@ -5,8 +5,8 @@
 1. 原生 JS
 2. Tailwind CSS
 3. Marked(highlight)
-4. katex
-5. remixicon
+4. ~~katex~~
+5. ~~remixicon~~
 
 ### 运行
 1. 配置 `public/static/basic.js` 文件，修改 `path` 为后端接口地址

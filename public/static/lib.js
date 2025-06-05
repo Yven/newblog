@@ -66,10 +66,10 @@ function showMsg(content) {
 }
 
 function initModal(type, submitFunc) {
-  const btn = document.getElementById(type+"Button");
-  const modal = document.getElementById(type+"Modal");
-  const closeModal = document.getElementById(type+"Close");
-  const form = document.getElementById(type+"Form");
+  const btn = document.getElementById(type + "Button");
+  const modal = document.getElementById(type + "Modal");
+  const closeModal = document.getElementById(type + "Close");
+  const form = document.getElementById(type + "Form");
   btn.addEventListener("click", () => {
     modal.classList.remove("hidden");
   });
@@ -88,7 +88,9 @@ function initModal(type, submitFunc) {
     button.disabled = true;
     button.classList.add("cursor-not-allowed");
     let lastInner = button.innerHTML;
-    button.innerHTML = '<i class="ri-loop-left-line"></i>'+lastInner;
+    button.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill="none" d="M0 0h24v24H0z"></path><path d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path></svg>' +
+      lastInner;
 
     submitFunc().then(() => {
       button.disabled = false;
@@ -96,7 +98,7 @@ function initModal(type, submitFunc) {
       button.innerHTML = lastInner;
     });
   });
-  const cancel = document.getElementById(type+"Cancel");
+  const cancel = document.getElementById(type + "Cancel");
   cancel.addEventListener("click", (e) => {
     e.preventDefault();
     modal.classList.add("hidden");
@@ -143,20 +145,19 @@ function titleAnimate(show) {
   }
 
   const webNav = document.getElementById("webNav");
-  webNav.className =
-    show
+  webNav.className = show
     ? "flex justify-center items-center space-x-4 flex-wrap"
-    : "flex flex-col space-y-2 text-xs leading-[0.75]";
+    : "flex flex-col space-x-2 text-xs leading-[0.75]";
 
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
+  const navLinks = document.querySelectorAll(".nav-link");
+  navLinks.forEach((link) => {
     link.className = show
       ? "nav-link text-nowrap sm:text-base text-sm text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
-      : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm py-2";
+      : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm px-2";
   });
 
   const navDelimiter = document.querySelectorAll(".nav-delimiter");
-  navDelimiter.forEach(element => {
+  navDelimiter.forEach((element) => {
     if (show) {
       element.classList.remove("hidden");
     } else {
@@ -188,9 +189,18 @@ function showContent() {
 
 function showTitleLoading() {
   // 初始化标题加载占位符
-  document.getElementById("webTitle").innerHTML = buildTpl(loadingTpl, { height: "8", width: "1/4" });
-  document.getElementById("webDesc").innerHTML = buildTpl(loadingTpl, { height: "4", width: "1/4" });
-  document.getElementById("webNav").innerHTML = buildTpl(loadingTpl, { height: "4", width: "1/3" });
+  document.getElementById("webTitle").innerHTML = buildTpl(loadingTpl, {
+    height: "8",
+    width: "1/4",
+  });
+  document.getElementById("webDesc").innerHTML = buildTpl(loadingTpl, {
+    height: "4",
+    width: "1/4",
+  });
+  document.getElementById("webNav").innerHTML = buildTpl(loadingTpl, {
+    height: "4",
+    width: "1/3",
+  });
 }
 
 function showLoadding() {
@@ -204,15 +214,17 @@ function showLoadding() {
   document.getElementById("searchElement").classList.remove("hidden");
 
   // 初始化正文加载占位符
-  const loading = document.getElementById("loading")
+  const loading = document.getElementById("loading");
   // 生成3-6个随机大小的loading占位符
-  let loadingHtml = '';
+  let loadingHtml = "";
   const count = Math.floor(Math.random() * 4) + 3; // 3-6之间的随机数
-  for(let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     const height = Math.floor(Math.random() * 4) + 4; // 4-7之间的随机高度
-    const widthOptions = ['1/4', '1/3', '1/2', '2/3', '3/4', 'full'];
+    const widthOptions = ["1/4", "1/3", "1/2", "2/3", "3/4", "full"];
     const width = widthOptions[Math.floor(Math.random() * widthOptions.length)];
-    loadingHtml += buildTpl(loadingTpl, { height: height.toString(), width: width }) + '<div class="h-4"></div>';
+    loadingHtml +=
+      buildTpl(loadingTpl, { height: height.toString(), width: width }) +
+      '<div class="h-4"></div>';
   }
   loading.innerHTML = loadingHtml;
   loading.classList.remove("hidden");
@@ -303,4 +315,3 @@ function highlightContent(elementId, searchTerm) {
     }
   });
 }
-
