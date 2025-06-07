@@ -2,15 +2,20 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"newblog/internal/model"
+	"strings"
 	"time"
 )
 
 type ArticleRepository interface {
-	List(keyword string) (*[]model.ArticleList, error)
-	Info(slug string) (*model.Article, error)
+	List(keyword string, getAll bool) (*[]model.ArticleList, error)
+	Info(slug string, getAll bool) (*model.Article, error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
+	RealDelete(slug string) error
+	Recover(slug string) error
+	Insert(article *model.Article) (*model.Article, error)
 }
 
 type articleRepository struct {
@@ -21,15 +26,21 @@ func NewArticleRepository(db *sql.DB) ArticleRepository {
 	return &articleRepository{db: db}
 }
 
-func (a *articleRepository) Info(slug string) (*model.Article, error) {
+func (a *articleRepository) Info(slug string, getAll bool) (*model.Article, error) {
+	deleteWhere := ""
+	if !getAll {
+		deleteWhere = "AND a.delete_time IS NULL"
+	}
+
 	query := `
 SELECT a.id, a.slug, a.title, a.content, a.cid,
 datetime(a.create_time, 'unixepoch') as create_time,
 datetime(a.update_time, 'unixepoch') as update_time,
-a.delete_time, c.name AS category_name
+strftime('%Y-%m-%d %H:%M:%S', datetime(a.delete_time, 'unixepoch')) as delete_time,
+c.name AS category
 FROM article AS a
 LEFT JOIN category AS c ON a.cid = c.id
-WHERE slug = ? AND delete_time IS NULL
+WHERE slug = ? ` + deleteWhere + `
 LIMIT 1
 `
 
@@ -45,7 +56,7 @@ LIMIT 1
 		&article.CreateTime,
 		&article.UpdateTime,
 		&article.DeleteTime,
-		&article.CategoryName,
+		&article.Category,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -54,23 +65,33 @@ LIMIT 1
 		return nil, err
 	}
 
+	article.TagList, _ = NewTagRepository(a.db).List(article.ID)
+
 	return &article, nil
 }
 
-func (a *articleRepository) List(keyword string) (*[]model.ArticleList, error) {
-	addWhere := ""
+func (a *articleRepository) List(keyword string, getAll bool) (*[]model.ArticleList, error) {
+	var where []string
 	if keyword != "" {
-		addWhere = "AND a.title LIKE ?"
+		where = append(where, "a.title LIKE ?")
+	}
+	if !getAll {
+		where = append(where, "a.delete_time IS NULL")
+	}
+
+	whereStr := strings.Join(where, " AND ")
+	if whereStr != "" {
+		whereStr = "WHERE " + whereStr
 	}
 
 	query := `
 SELECT a.id, a.slug, a.title, a.cid,
 strftime('%m-%d', datetime(a.create_time, 'unixepoch')) as date,
 strftime('%Y', datetime(a.create_time, 'unixepoch')) as year,
-c.name AS category
+c.name AS category,
+strftime('%Y-%m-%d %H:%M:%S', datetime(a.delete_time, 'unixepoch')) as delete_time
 FROM article AS a
-LEFT JOIN category AS c ON a.cid = c.id
-WHERE delete_time IS NULL ` + addWhere + `
+LEFT JOIN category AS c ON a.cid = c.id ` + whereStr + `
 ORDER BY create_time DESC
 `
 
@@ -98,6 +119,7 @@ ORDER BY create_time DESC
 			&item.Date,
 			&year,
 			&item.Category,
+			&item.DeleteTime,
 		); err != nil {
 			return nil, err
 		}
@@ -110,6 +132,8 @@ ORDER BY create_time DESC
 			i = i + 1
 			list = append(list, model.ArticleList{Year: year, Item: nil})
 		}
+		item.TagList, _ = NewTagRepository(a.db).List(item.ID)
+
 		list[i].Item = append(list[i].Item, item)
 	}
 
@@ -120,7 +144,7 @@ func (a *articleRepository) Edit(slug string, newContent string) error {
 	query := `
 UPDATE article
 SET content = ?
-WHERE slug = ? AND delete_time IS NULL
+WHERE slug = ?
 `
 
 	_, err := a.db.Exec(query, newContent, slug)
@@ -130,6 +154,7 @@ WHERE slug = ? AND delete_time IS NULL
 
 	return nil
 }
+
 func (a *articleRepository) Delete(slug string) error {
 	query := `
 UPDATE article
@@ -143,4 +168,78 @@ WHERE slug = ?
 	}
 
 	return nil
+}
+
+func (a *articleRepository) RealDelete(slug string) error {
+	query := `
+DELETE FROM article
+WHERE slug = ?
+`
+
+	data, err := a.Info(slug, true)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.db.Exec(query, slug)
+	if err != nil {
+		return err
+	}
+
+	err = NewTagRepository(a.db).DeleteRelate(data.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *articleRepository) Recover(slug string) error {
+	query := `
+UPDATE article
+SET delete_time = ?
+WHERE slug = ?
+`
+
+	_, err := a.db.Exec(query, nil, slug)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *articleRepository) Insert(article *model.Article) (*model.Article, error) {
+	if exist, _ := a.Info(article.Slug, true); exist != nil {
+		return nil, errors.New("slug已存在")
+	}
+	if exist, _ := NewCategoryRepository(a.db).Exist(article.Cid); !exist {
+		return nil, errors.New("类别不存在")
+	}
+	if exist, _ := NewTagRepository(a.db).Exist(article.TagList); !exist {
+		return nil, errors.New("标签不存在")
+	}
+
+	query := `
+INSERT INTO article (slug, title, content, cid)
+VALUES (?, ?, ?, ?)
+`
+
+	res, err := a.db.Exec(query,
+		article.Slug,
+		article.Title,
+		article.Content,
+		article.Cid,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	id, _ := res.LastInsertId()
+	err = NewTagRepository(a.db).Relate(id, article.TagList)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.Info(article.Slug, true)
 }

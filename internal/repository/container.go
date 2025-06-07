@@ -6,6 +6,7 @@ type Container struct {
 	ArticleRepo ArticleRepository
 	AdminRepo   AdminRepository
 	WebRepo     WebRepository
+	TagRepo     TagRepository
 }
 
 func NewRepositoryContainer(db *sql.DB) *Container {
@@ -13,5 +14,6 @@ func NewRepositoryContainer(db *sql.DB) *Container {
 		ArticleRepo: NewArticleRepository(db),
 		AdminRepo:   NewAdminRepository(db),
 		WebRepo:     NewWebRepository(db),
+		TagRepo:     NewTagRepository(db),
 	}
 }

@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"newblog/internal/service"
 	"newblog/internal/util"
+	"newblog/internal/validate"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type AdminHandler struct {
@@ -18,29 +20,18 @@ func NewAdminHandler(adminService service.AdminService) *AdminHandler {
 }
 
 func (s *AdminHandler) Login(c *gin.Context) {
-	// 从 form 表单获取数据
-	postUser := c.PostForm("username")
-	postPassword := c.PostForm("password")
-
-	// 如果 form 表单为空，尝试从 json 获取数据
-	if postUser == "" || postPassword == "" {
-		var jsonData struct {
-			User     string `json:"username"`
-			Password string `json:"password"`
+	var data validate.Admin
+	if err := c.ShouldBindJSON(&data); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			util.Error(c, http.StatusBadRequest, errors.New("字段格式错误: "+validationErrors.Error()))
+			return
 		}
-		if err := c.ShouldBindJSON(&jsonData); err == nil {
-			postUser = jsonData.User
-			postPassword = jsonData.Password
-		}
-	}
 
-	// 如果两种方式都没有获取到数据，返回错误
-	if postUser == "" || postPassword == "" {
-		util.Error(c, http.StatusBadRequest, errors.New("缺少用户名或密码"))
+		util.Error(c, http.StatusBadRequest, err)
 		return
 	}
 
-	token, err := s.adminService.Login(postUser, postPassword)
+	token, err := s.adminService.Login(data.Username, data.Password)
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)
 		return

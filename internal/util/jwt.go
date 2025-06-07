@@ -6,6 +6,7 @@ import (
 	"newblog/internal/config"
 	"newblog/internal/model"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,8 +14,9 @@ import (
 
 type JwtService interface {
 	GetToken(userId string) (*model.Token, error)
-	Check(token string) (bool, error)
+	Check(token string) (*JWTClaims, error)
 	Cancel()
+	BearerHeaderCheck(auth string) (*JWTClaims, error)
 }
 
 type jwtService struct {
@@ -84,38 +86,54 @@ func (j *jwtService) GetToken(userId string) (*model.Token, error) {
 	}, nil
 }
 
-func (j *jwtService) Check(token string) (bool, error) {
-	// 检查是否存在已保存的token
+func (j *jwtService) Check(token string) (*JWTClaims, error) {
 	if tokenBytes, err := os.ReadFile(j.localPath); err == nil {
 		if string(tokenBytes) != token {
-			return false, errors.New("认证信息错误")
+			return nil, errors.New("认证信息错误")
 		}
 	} else {
-		return false, errors.New("认证已过期")
+		return nil, errors.New("认证已过期")
 	}
 
 	// 解析token
-	_, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
+	claims, err := jwt.ParseWithClaims(token, &JWTClaims{}, func(token *jwt.Token) (any, error) {
 		return j.key, nil
 	})
 	if err != nil {
 		switch {
 		case errors.Is(err, jwt.ErrTokenMalformed):
-			return false, errors.New("认证格式错误")
+			return nil, errors.New("认证格式错误")
 		case errors.Is(err, jwt.ErrTokenSignatureInvalid):
-			return false, errors.New("认证被篡改")
+			return nil, errors.New("认证被篡改")
 		case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
 			os.Remove(j.localPath)
-			return false, errors.New("认证已过期")
+			return nil, errors.New("认证已过期")
 		default:
 			log.Println(err)
-			return false, errors.New("认证信息错误")
+			return nil, errors.New("认证信息错误")
 		}
 	}
 
-	return true, nil
+	return claims.Claims.(*JWTClaims), nil
 }
 
 func (j *jwtService) Cancel() {
 	os.Remove(j.localPath)
+}
+
+func (j *jwtService) BearerHeaderCheck(auth string) (*JWTClaims, error) {
+	if auth == "" {
+		return nil, errors.New("缺少认证信息")
+	}
+	authArr := strings.Split(auth, " ")
+	if len(authArr) != 2 || authArr[0] != "Bearer" || authArr[1] == "" {
+		return nil, errors.New("认证格式错误")
+	}
+
+	claims, err := j.Check(authArr[1])
+	if claims == nil {
+		return nil, err
+	}
+
+	return claims, nil
 }

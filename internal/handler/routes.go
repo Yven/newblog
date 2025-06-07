@@ -5,13 +5,20 @@ import (
 	"newblog/internal/config"
 	"newblog/internal/middleware"
 	"newblog/internal/service"
+	"newblog/internal/validate"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 func RegisterRoutes(svc *service.Container) http.Handler {
 	r := gin.Default()
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("idStringList", validate.IdStringList)
+	}
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     config.Global.Server.Addr,
@@ -39,6 +46,10 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 
 		authorized.POST("/content/:slug", articleHandler.Edit)
 		authorized.DELETE("/content/:slug", articleHandler.Delete)
+
+		authorized.POST("/content", articleHandler.Create)
+		authorized.DELETE("/content/delete/:slug", articleHandler.RealDelete)
+		authorized.GET("/content/recover/:slug", articleHandler.Recover)
 	}
 
 	return r
