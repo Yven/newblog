@@ -4,6 +4,7 @@ async function request(url, options = {}) {
     const defaultOptions = {
       headers: {
         "Content-Type": "application/json",
+        "Authorization": "Bearer " + getCookie("token"),
       },
     };
 
@@ -14,12 +15,6 @@ async function request(url, options = {}) {
         formJson[key] = value;
       }
       options.body = JSON.stringify(formJson);
-    }
-
-    // 如果需要认证，添加 token
-    if (options.needAuth) {
-      defaultOptions.headers.Authorization = "Bearer " + getCookie("token");
-      delete options.needAuth;
     }
 
     const response = await fetch(path + url, {
@@ -73,7 +68,7 @@ async function login(formData) {
 
 // 用户登出
 async function logout() {
-  return post("/logout", null, { needAuth: true });
+  return post("/logout");
 }
 
 // 获取文章列表
@@ -90,10 +85,20 @@ async function getContent(route) {
 
 // 编辑文章内容
 async function editedContent(route, formData) {
-  return post(`/content/${route}`, formData, { needAuth: true });
+  return post(`/content/${route}`, formData);
 }
 
 // 删除文章
 async function deleteContent(route) {
-  return del(`/content/${route}`, { needAuth: true });
+  return del(`/content/${route}`);
+}
+
+// 恢复文章
+async function recoverContent(route) {
+  return get(`/content/recover/${route}`);
+}
+
+// 完全删除文章
+async function realDeleteContent(route) {
+  return del(`/content/delete/${route}`);
 }

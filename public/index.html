@@ -163,7 +163,7 @@
                     <button
                       id="editButton"
                       title="编辑"
-                      class="edit-content-btn flex items-center justify-center text-gray-500 hover:text-gray-100"
+                      class="flex items-center justify-center text-gray-500 hover:text-gray-100"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -181,7 +181,7 @@
                     <button
                       id="deleteButton"
                       title="删除"
-                      class="edit-content-btn flex items-center justify-center text-gray-500 hover:text-gray-100"
+                      class="flex items-center justify-center text-gray-500 hover:text-gray-100"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -193,6 +193,42 @@
                         <path fill="none" d="M0 0h24v24H0z"></path>
                         <path
                           d="M17 6H22V8H20V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V8H2V6H7V3C7 2.44772 7.44772 2 8 2H16C16.5523 2 17 2.44772 17 3V6ZM18 8H6V20H18V8ZM9 11H11V17H9V11ZM13 11H15V17H13V11ZM9 4V6H15V4H9Z"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      id="recoverButton"
+                      title="恢复"
+                      class="flex items-center justify-center text-gray-500 hover:text-gray-100"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                      >
+                        <path fill="none" d="M0 0h24v24H0z"></path>
+                        <path
+                          d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      id="realDeleteButton"
+                      title="完全删除"
+                      class="flex items-center justify-center text-gray-500 hover:text-gray-100"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="rgba(187,0,0,1)"
+                      >
+                        <path fill="none" d="M0 0h24v24H0z"></path>
+                        <path
+                          d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"
                         ></path>
                       </svg>
                     </button>
@@ -360,16 +396,15 @@
 
       <div
         id="loginModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center hidden"
       >
-        <form
-          id="loginForm"
+        <div
           class="bg-white dark:bg-gray-800 rounded-lg p-8 sm:w-96 w-3/4 relative"
         >
           <button
             id="loginClose"
             title="关闭"
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-300"
           >
             <svg
               class="text-xl"
@@ -390,7 +425,10 @@
           >
             验证
           </h2>
-          <div class="flex flex-col items-center justify-center gap-6">
+          <form
+            id="loginForm"
+            class="flex flex-col items-center justify-center gap-6"
+          >
             <div class="relative w-full">
               <input
                 type="text"
@@ -398,7 +436,7 @@
                 class="w-full px-4 py-2 pl-9 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-500"
                 required
               />
-              <div class="absolute left-3 top-3 text-gray-400">
+              <div class="absolute left-3 top-3.5 text-gray-400">
                 <svg
                   class="cursor-pointer"
                   xmlns="http://www.w3.org/2000/svg"
@@ -421,7 +459,7 @@
                 class="w-full px-4 py-2 pl-9 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-500"
                 required
               />
-              <div class="absolute left-3 top-3 text-gray-400">
+              <div class="absolute left-3 top-3.5 text-gray-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -439,8 +477,22 @@
             <div class="w-full flex items-center justify-center gap-6">
               <button
                 type="submit"
-                class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 hover:bg-primary/90 transition-colors !rounded-button"
+                class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 hover:bg-primary/90 transition-colors !rounded-button flex items-center justify-center"
               >
+                <svg
+                  id="loginLoading"
+                  class="mr-1 hidden"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                >
+                  <path fill="none" d="M0 0h24v24H0z"></path>
+                  <path
+                    d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"
+                  ></path>
+                </svg>
                 登录
               </button>
               <button
@@ -451,70 +503,21 @@
                 取消
               </button>
             </div>
-          </div>
-        </form>
-      </div>
-
-      <div
-        id="logoutModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
-      >
-        <div
-          class="bg-white dark:bg-gray-800 rounded-lg p-8 sm:w-96 w-3/4 relative"
-        >
-          <button
-            id="logoutClose"
-            title="关闭"
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              class="text-xl"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              fill="currentColor"
-            >
-              <path fill="none" d="M0 0h24v24H0z"></path>
-              <path
-                d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"
-              ></path>
-            </svg>
-          </button>
-          <h2
-            class="text-xl text-center font-semibold text-gray-800 dark:text-gray-300 mb-6"
-          >
-            是否确认退出？
-          </h2>
-          <form id="logoutForm" class="flex items-center justify-center gap-6">
-            <button
-              type="submit"
-              class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 hover:bg-primary/90 transition-colors !rounded-button"
-            >
-              确定
-            </button>
-            <button
-              type="button"
-              id="logoutCancel"
-              class="w-full bg-gray-600 text-white dark:text-gray-300 py-2 px-4 hover:bg-gray-400 transition-colors !rounded-button"
-            >
-              取消
-            </button>
           </form>
         </div>
       </div>
 
       <div
-        id="deleteModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+        id="stdModal"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center hidden"
       >
         <div
           class="bg-white dark:bg-gray-800 rounded-lg p-8 sm:w-96 w-3/4 relative"
         >
           <button
-            id="deleteClose"
+            id="stdClose"
             title="关闭"
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-300"
           >
             <svg
               class="text-xl"
@@ -531,20 +534,35 @@
             </svg>
           </button>
           <h2
+            id="stdContent"
             class="text-xl text-center font-semibold text-gray-800 dark:text-gray-300 mb-6"
           >
-            是否确认删除此文章？
+            确认进行此操作？
           </h2>
-          <form id="deleteForm" class="flex items-center justify-center gap-6">
+          <form id="stdForm" class="flex items-center justify-center gap-6">
             <button
               type="submit"
               class="w-full bg-blue-900 text-white dark:text-gray-300 py-2 px-4 hover:bg-primary/90 transition-colors !rounded-button"
             >
+              <svg
+                id="stdLoading"
+                class="mr-1 hidden"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path
+                  d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"
+                ></path>
+              </svg>
               确定
             </button>
             <button
               type="button"
-              id="deleteCancel"
+              id="stdCancel"
               class="w-full bg-gray-600 text-white dark:text-gray-300 py-2 px-4 hover:bg-gray-400 transition-colors !rounded-button"
             >
               取消
@@ -572,7 +590,7 @@
         </svg>
         <span id="msgContent" class="text-sm"></span>
         <button
-          id="closeModal3"
+          id="msgClose"
           title="关闭"
           class="text-gray-500 hover:text-gray-300"
         >

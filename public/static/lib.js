@@ -65,50 +65,66 @@ function showMsg(content) {
   }, 3000);
 }
 
-function initModal(type, submitFunc) {
-  const btn = document.getElementById(type + "Button");
-  const modal = document.getElementById(type + "Modal");
-  const closeModal = document.getElementById(type + "Close");
-  const form = document.getElementById(type + "Form");
-  btn.addEventListener("click", () => {
-    modal.classList.remove("hidden");
-  });
-  closeModal.addEventListener("click", () => {
-    modal.classList.add("hidden");
-  });
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.classList.add("hidden");
-    }
-  });
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+function resetSubmitBtn(type) {
+  let form = document.getElementById(type + "Form");
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = false;
+  button.style.cursor = "pointer";
+  button.classList.remove("bg-blue-900/50");
+  button.classList.add("bg-blue-900");
+  button.classList.add("hover:bg-primary/90");
+  const loadingIcon = document.getElementById(type + "Loading");
+  loadingIcon.classList.add("hidden");
+}
 
+function openModal(type, content, submitFunc) {
+  const modal = document.getElementById(type + "Modal");
+  if (type == "std" && content != undefined && content !== "") {
+    document.getElementById(type + "Content").innerHTML = content;
+  }
+
+  let form = document.getElementById(type + "Form");
+  // 清除之前可能存在的submit事件监听器
+  const oldSubmitListeners = form.cloneNode(true);
+  form.parentNode.replaceChild(oldSubmitListeners, form);
+  form = document.getElementById(type + "Form");
+
+  form.addEventListener("submit", (e) => {
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
-    button.classList.add("cursor-not-allowed");
-    let lastInner = button.innerHTML;
-    button.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill="none" d="M0 0h24v24H0z"></path><path d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path></svg>' +
-      lastInner;
+    button.style.cursor = "not-allowed";
+    button.classList.remove("bg-blue-900");
+    button.classList.add("bg-blue-900/50");
+    button.classList.remove("hover:bg-primary/90");
+
+    const loadingIcon = document.getElementById(type + "Loading");
+    loadingIcon.classList.remove("hidden");
 
     submitFunc().then(() => {
-      button.disabled = false;
-      button.classList.remove("cursor-not-allowed");
-      button.innerHTML = lastInner;
+      resetSubmitBtn(type);
     });
-  });
-  const cancel = document.getElementById(type + "Cancel");
-  cancel.addEventListener("click", (e) => {
+
     e.preventDefault();
-    modal.classList.add("hidden");
   });
+
+  const cancelModal = document.getElementById(type + "Cancel");
+  cancelModal.addEventListener("click", () => {
+    closedModal(type);
+  });
+
+  modal.classList.remove("hidden");
 }
 
 function closedModal(eleId) {
   return new Promise((resolve) => {
-    const modal = document.getElementById(eleId);
+    const modal = document.getElementById(eleId + "Modal");
     modal.classList.add("hidden");
+
+    let form = document.getElementById(eleId + "Form");
+    form.reset();
+
+    resetSubmitBtn(eleId);
+
     resolve();
   });
 }
@@ -152,7 +168,7 @@ function titleAnimate(show) {
   const navLinks = document.querySelectorAll(".nav-link");
   navLinks.forEach((link) => {
     link.className = show
-      ? "nav-link text-nowrap sm:text-base text-sm text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-gray-100"
+      ? "nav-link text-nowrap sm:text-base text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-gray-100"
       : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm px-2";
   });
 
@@ -314,4 +330,8 @@ function highlightContent(elementId, searchTerm) {
       el.setAttribute("style", originalStyles[el]);
     }
   });
+}
+
+function getRoute() {
+  return window.location.hash.slice(1);
 }
