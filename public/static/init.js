@@ -5,6 +5,18 @@ marked.use(gfmHeadingId({ prefix: "yven-header-" }), mangle(), {
   gfm: true,
 });
 
+// lazy loads elements with default selector as '.lozad'
+const observer = lozad(".lozad", {
+  load: function (el) {
+    el.classList.remove("img-loading");
+    let src = el.getAttribute("data-src");
+    let alt = el.getAttribute("alt");
+    el.innerHTML = `<img src="${src}" alt="${alt}" loading="lazy" />`;
+  },
+  enableAutoReload: true,
+});
+observer.observe();
+
 const indexParentTpl = `
 {{search_info}}
 <div id="homeList">{{list}}</div>
@@ -571,6 +583,19 @@ function renderContent(content) {
     regex,
     `<a target="_blank" rel="noreferrer noopener nofollow" `
   );
+  // 替换所有img标签为懒加载div
+  const imgRegex = /<img[^>]+>/g;
+  htmlContent = htmlContent.replace(imgRegex, (match) => {
+    // 提取src和alt属性
+    const srcMatch = match.match(/src="([^"]+)"/);
+    const altMatch = match.match(/alt="([^"]+)"/);
+
+    const src = srcMatch ? srcMatch[1] : '';
+    const alt = altMatch ? altMatch[1] : '';
+
+    // 返回新的div标签
+    return `<div data-src="${src}" alt="${alt}" class="lozad img-loading"></div>`;
+  });
   markdownContent.innerHTML = htmlContent;
 
   // 设置复制按钮
@@ -579,6 +604,8 @@ function renderContent(content) {
   setupToc();
   // 代码段高亮
   hljs.highlightAll();
+  // 懒加载图片
+  observer.observe();
 }
 
 function setupContent(route) {
@@ -588,6 +615,10 @@ function setupContent(route) {
         showMsg(data.message);
         showDefault();
       } else {
+        if (data.data == null) {
+          throw new Error("文章不存在");
+        }
+
         const title = document.getElementById("title");
         title.innerHTML = data.data.title;
         document.title = data.data.title;
@@ -625,7 +656,7 @@ function setupContent(route) {
       }
     })
     .catch((error) => {
-      showMsg("加载失败");
+      showMsg("加载失败: "+error.message);
       console.error(error);
       showDefault();
     });
