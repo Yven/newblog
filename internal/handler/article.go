@@ -25,6 +25,16 @@ func NewArticleHandler(articleService service.ArticleService) *ArticleHandler {
 
 func (h *ArticleHandler) List(c *gin.Context) {
 	keyword := c.Query("keyword")
+	tag := c.Query("tag")
+	category := c.Query("category")
+
+	tid, _ := strconv.ParseInt(tag, 10, 64)
+	cid, _ := strconv.ParseInt(category, 10, 64)
+	search := validate.List{
+		Keyword:  keyword,
+		Tag:      tid,
+		Category: cid,
+	}
 
 	_, err := global.JwtService.BearerHeaderCheck(c.GetHeader("Authorization"))
 	getAll := false
@@ -32,7 +42,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 		getAll = true
 	}
 
-	data, err := h.articleService.List(keyword, getAll)
+	data, err := h.articleService.List(search, getAll)
 
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)

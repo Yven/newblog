@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"newblog/internal/model"
+	"newblog/internal/validate"
 	"strings"
 	"time"
 )
 
 type ArticleRepository interface {
-	List(keyword string, getAll bool) (*[]model.ArticleList, error)
+	List(search validate.List, getAll bool) (*[]model.ArticleList, error)
 	Info(slug string, getAll bool) (*model.Article, error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
@@ -70,10 +71,20 @@ LIMIT 1
 	return &article, nil
 }
 
-func (a *articleRepository) List(keyword string, getAll bool) (*[]model.ArticleList, error) {
+func (a *articleRepository) List(search validate.List, getAll bool) (*[]model.ArticleList, error) {
 	var where []string
-	if keyword != "" {
+	var args []any
+	if search.Keyword != "" {
 		where = append(where, "a.title LIKE ?")
+		args = append(args, "%"+search.Keyword+"%")
+	}
+	if search.Category != 0 {
+		where = append(where, "a.cid = ?")
+		args = append(args, search.Category)
+	}
+	if search.Tag != 0 {
+		where = append(where, "at.tid = ?")
+		args = append(args, search.Tag)
 	}
 	if !getAll {
 		where = append(where, "a.delete_time IS NULL")
@@ -91,11 +102,14 @@ strftime('%Y', datetime(a.create_time, 'unixepoch')) as year,
 c.name AS category,
 strftime('%Y-%m-%d %H:%M:%S', datetime(a.delete_time, 'unixepoch')) as delete_time
 FROM article AS a
-LEFT JOIN category AS c ON a.cid = c.id ` + whereStr + `
+LEFT JOIN category AS c ON a.cid = c.id
+LEFT JOIN article_tag AS at ON at.aid = a.id
+ ` + whereStr + `
+GROUP BY a.id
 ORDER BY create_time DESC
 `
 
-	rows, err := a.db.Query(query, "%"+keyword+"%")
+	rows, err := a.db.Query(query, args...)
 	defer rows.Close()
 
 	if err != nil {

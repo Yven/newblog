@@ -7,6 +7,12 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+type List struct {
+	Keyword  string `json:"keyword"`
+	Tag      int64  `json:"tag"`
+	Category int64  `json:"category"`
+}
+
 type Article struct {
 	Slug    string `json:"slug" binding:"required,alphanumunicode"`
 	Title   string `json:"title" binding:"required"`

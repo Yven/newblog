@@ -16,16 +16,17 @@ import (
 func RegisterRoutes(svc *service.Container) http.Handler {
 	r := gin.Default()
 
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     config.Global.Server.Addr,
+		AllowMethods:     []string{"GET", "POST", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           86400,
+	}))
+
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("idStringList", validate.IdStringList)
 	}
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     config.Global.Server.Addr,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
-		AllowCredentials: true,
-	}))
 
 	adminHandler := NewAdminHandler(svc.AdminService)
 	articleHandler := NewArticleHandler(svc.ArticleService)

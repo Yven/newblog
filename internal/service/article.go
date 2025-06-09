@@ -3,10 +3,11 @@ package service
 import (
 	"newblog/internal/model"
 	"newblog/internal/repository"
+	"newblog/internal/validate"
 )
 
 type ArticleService interface {
-	List(keyword string, getAll bool) (data *[]model.ArticleList, err error)
+	List(search validate.List, getAll bool) (data *[]model.ArticleList, err error)
 	Info(slug string, getAll bool) (data *model.Article, err error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
@@ -25,8 +26,8 @@ func NewArticleService(db repository.ArticleRepository) *articleService {
 	}
 }
 
-func (s *articleService) List(keyword string, getAll bool) (data *[]model.ArticleList, err error) {
-	return s.db.List(keyword, getAll)
+func (s *articleService) List(search validate.List, getAll bool) (data *[]model.ArticleList, err error) {
+	return s.db.List(search, getAll)
 }
 
 func (s *articleService) Info(slug string, getAll bool) (data *model.Article, err error) {

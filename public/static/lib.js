@@ -169,7 +169,7 @@ function titleAnimate(show) {
   navLinks.forEach((link) => {
     link.className = show
       ? "nav-link text-nowrap sm:text-base text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-gray-100"
-      : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-200 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm px-2";
+      : "nav-link bg-blue-900 opacity-80 pl-1.5 pr-1 text-gray-300 hover:bg-blue-700 hover:text-gray-100 text-vertical rounded-l-sm px-2";
   });
 
   const navDelimiter = document.querySelectorAll(".nav-delimiter");
@@ -259,6 +259,19 @@ function showDefault() {
   titleAnimate(true);
 }
 
+function moveSearchInput(direction) {
+  const searchInput = document.getElementById("searchInput");
+  if (direction == 'left') {
+    searchInput.classList.remove("w-8");
+    searchInput.classList.add("w-[4.5rem]");
+    searchInput.placeholder = "搜索";
+  } else if (direction == 'right') {
+    searchInput.classList.remove("w-[4.5rem]");
+    searchInput.classList.add("w-8");
+    searchInput.placeholder = "";
+  }
+}
+
 function isLogin() {
   return getCookie("token") !== null;
 }
@@ -270,7 +283,7 @@ function buildTpl(tpl, data) {
 }
 
 function isHome() {
-  const hash = window.location.hash.slice(1);
+  const hash = getRoute();
   return hash === "" || hash === "home" || hash === "index";
 }
 
@@ -333,5 +346,42 @@ function highlightContent(elementId, searchTerm) {
 }
 
 function getRoute() {
-  return window.location.hash.slice(1);
+  return window.location.hash.slice(1).split("?")[0];
+}
+
+function getQuery() {
+  let hash = window.location.hash.slice(1);
+
+  // 如果没有hash或hash为空，返回空对象
+  if (!hash) {
+    return {};
+  }
+
+  // 分离路径和查询字符串
+  const [path, queryString] = hash.split('?');
+
+  // 如果没有查询字符串，返回只包含path的对象
+  if (!queryString) {
+    return {};
+  }
+
+  // 解析查询字符串参数
+  const query = {};
+  queryString.split('&').forEach(param => {
+    const [key, value] = param.split('=');
+    if (key) {
+      query[decodeURIComponent(key)] = value ? decodeURIComponent(value) : '';
+    }
+  });
+
+  // 返回包含路径和查询参数的对象
+  return query;
+}
+
+// 将对象转换为 URL 查询参数
+function objToQueryString(obj) {
+  return obj ? Object.entries(obj)
+    .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&') : "";
 }

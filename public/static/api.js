@@ -72,10 +72,11 @@ async function logout() {
 }
 
 // 获取文章列表
-async function getList(keyword) {
-  // 如果有关键词则添加到查询参数中
-  const params = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
-  return get(`/list${params}`);
+async function getList(params) {
+  query = objToQueryString(params);
+  query = query ? "?"+query : "";
+
+  return get(`/list${query}`);
 }
 
 // 获取指定文章内容

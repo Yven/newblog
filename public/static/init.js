@@ -5,6 +5,11 @@ marked.use(gfmHeadingId({ prefix: "yven-header-" }), mangle(), {
   gfm: true,
 });
 
+const indexParentTpl = `
+{{search_info}}
+<div id="homeList">{{list}}</div>
+`;
+
 const indexTpl = `
 <div class="py-2">
   <h3 class="sm:text-lg text-md font-semibold text-primary mb-3">
@@ -17,7 +22,13 @@ const indexTpl = `
 const indexItemTpl = `
 <div class="ml-4 py-2 space-y-6">
   <div class="flex justify-between items-center">
-    <span class="text-nowrap text-sm text-gray-400 dark:text-gray-600 mr-3">{{category}}</span>
+      <span
+        class="text-nowrap text-sm text-gray-400 dark:text-gray-600 hover:text-gray-300 dark:hover:text-gray-400 mr-3"
+      >
+        <a href="#?category={{cid}}_{{category}}">
+          {{category}}
+        </a>
+      </span>
     <a href="#{{slug}}" class="text-gray-800 dark:text-gray-400 hover:text-primary dark:hover:text-gray-300 flex items-center">
       {{title}}
     </a>
@@ -25,6 +36,12 @@ const indexItemTpl = `
     <span class="text-nowrap text-sm text-gray-400 dark:text-gray-400">{{date}}</span>
   </div>
 </div>
+`;
+
+const tagItemTpl = `
+<a href="#?tag={{id}}_{{name}}">
+  <div class="text-xs font-bold text-gray-600 py-0.5 px-2 bg-blue-200/80 hover:bg-blue-300 rounded-md">{{name}}</div>
+</a>
 `;
 
 const navLinkTpl = `
@@ -45,6 +62,48 @@ const loadingTpl = `
 </div>
 `;
 
+var searchInfo = `
+<div class="pb-8 flex flex-col gap-2">
+  <h3 class="sm:text-lg text-md font-semibold text-primary">搜索条件</h3>
+  {{item}}
+</div>
+`;
+
+var searchItem = `
+<div class="flex items-center gap-2 ml-4">
+  <span class="text-sm text-gray-400">{{type}}：</span>
+  {{list}}
+</div>
+`;
+
+// bg-yellow-200/80
+// bg-blue-200/80
+// bg-gray-200/80
+var searchTagItem = `
+<div class="flex items-center justify-center gap-1 py-0.5 px-2 bg-{{color}}-200/80 rounded-md">
+  <span class="text-xs font-bold text-gray-600">{{name}}</span>
+  <button
+    value="{{id}}{{name}}"
+    title="删除搜索条件"
+    class="search-tag-close text-gray-500 hover:text-gray-400 flex items-center justify-center"
+  >
+    <svg
+      class="text-sm"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="currentColor"
+    >
+      <path fill="none" d="M0 0h24v24H0z"></path>
+      <path
+        d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"
+      ></path>
+    </svg>
+  </button>
+</div>
+`;
+
 var originalContent;
 var webOpen = false;
 
@@ -62,17 +121,24 @@ function render() {
 
   pageClaen();
 
-  let hash = getRoute();
-  switch (hash) {
+  let path = getRoute();
+  switch (path) {
     case "":
     case "index":
     case "home":
       titleAnimate(true);
-      setupList();
+      setupList(getQuery()).then(() => {
+        let params = getQuery()
+        if (params.keyword) {
+          moveSearchInput("left");
+          document.getElementById("searchInput").value = params.keyword;
+          highlightContent("homeList", params.keyword);
+        }
+      });
       break;
     default:
       titleAnimate(false);
-      setupContent(hash);
+      setupContent(path);
       break;
   }
 }
@@ -150,9 +216,16 @@ function init() {
 
 function search(searchTerm) {
   if (isHome()) {
-    setupList(searchTerm).then(() => {
-      highlightContent("home", searchTerm);
-    });
+    let query = getQuery();
+    if (searchTerm) {
+      query["keyword"] = searchTerm;
+    } else {
+      delete query["keyword"];
+    }
+
+    let queryStr = objToQueryString(query)
+    queryStr = queryStr ? "?"+queryStr : "";
+    window.location.href = "#" + queryStr;
   } else {
     highlightContent("markdownContent", searchTerm);
   }
@@ -175,8 +248,60 @@ function setupModal(type) {
   });
 }
 
-async function setupList(keyword) {
-  return getList(keyword)
+function setupSearchList(params) {
+  let searchHtml = '';
+  let searchTypes = {
+    'category': {
+      name: '分类',
+      color: 'yellow'
+    },
+    'tag': {
+      name: '标签',
+      color: 'blue'
+    },
+    'keyword': {
+      name: '标题',
+      color: 'gray'
+    }
+  };
+
+  for (let key in params) {
+    if (params[key] && searchTypes[key]) {
+      let tagList = '';
+      let names = Array.isArray(params[key]) ? params[key] : [params[key]];
+      names.forEach(name => {
+        let tagData = {
+          id: key == 'category' || key == 'tag' ? name.split('_')[0]+'_' : '',
+          name: key == 'category' || key == 'tag' ? name.split('_')[1] : name,
+          color: searchTypes[key].color
+        };
+        tagList += buildTpl(searchTagItem, tagData);
+      });
+
+      let searchData = {
+        type: searchTypes[key].name,
+        list: tagList
+      };
+      searchHtml += buildTpl(searchItem, searchData);
+    }
+  }
+
+  if (searchHtml) {
+    searchHtml = buildTpl(searchInfo, {item: searchHtml});
+  }
+
+  return searchHtml;
+}
+
+async function setupList(params = {}) {
+  let query = {};
+  for (const key in params) {
+    query[key] =
+      key == "tag" || key == "category"
+        ? params[key].split("_")[0]
+        : params[key];
+  }
+  return getList(query)
     .then((res) => {
       let data = res.data;
 
@@ -202,7 +327,12 @@ async function setupList(keyword) {
         html += buildTpl(indexTpl, item);
       });
 
-      document.getElementById("home").innerHTML = html;
+      let searchInfo = setupSearchList(params);
+      document.getElementById("home").innerHTML = buildTpl(indexParentTpl, {
+        search_info: searchInfo,
+        list: html,
+      });
+
       showHome();
     })
     .catch((error) => {
@@ -463,6 +593,14 @@ function setupContent(route) {
         document.title = data.data.title;
         const time = document.getElementById("time");
         time.innerHTML = data.data.create_time;
+        if (data.data.tag_list) {
+          const tags = document.getElementById("tags");
+          let tagHtml = "";
+          data.data.tag_list.forEach((element) => {
+            tagHtml += buildTpl(tagItemTpl, element);
+          });
+          tags.innerHTML = tagHtml;
+        }
 
         originalContent = data.data.content;
         // 显示正文
@@ -699,26 +837,40 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchButton = document.getElementById("searchButton");
   const searchInput = document.getElementById("searchInput");
   searchButton.addEventListener("click", function () {
-    if (searchInput.classList.contains("w-8")) {
-      searchInput.focus();
-      searchInput.classList.remove("w-8");
-      searchInput.classList.add("w-[4.5rem]");
-      searchInput.placeholder = "搜索";
-    }
+    searchInput.focus();
+    moveSearchInput("left");
   });
-  searchInput.addEventListener("blur", function () {
+  searchInput.addEventListener("blur", function (e) {
+    // 只处理从focus状态失去焦点的情况
     if (searchInput.value.trim() === "") {
-      searchInput.classList.remove("w-[4.5rem]");
-      searchInput.classList.add("w-8");
-      searchInput.placeholder = "";
+      moveSearchInput("right");
     }
-    search(searchInput.value);
   });
   searchInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
       e.preventDefault();
       search(searchInput.value);
       return;
+    }
+  });
+
+  // 为搜索标签的关闭按钮添加点击事件
+  document.addEventListener('click', function(e) {
+    const tagElement = e.target.closest('.search-tag-close');
+    if (tagElement) {
+      const value = e.target.closest('button').value;
+      // 从URL中移除对应的搜索参数
+      let query = getQuery();
+      for (const key in query) {
+        if (query[key] === value) {
+          delete query[key];
+        }
+      }
+
+      // 更新URL
+      let queryStr = objToQueryString(query);
+      queryStr = queryStr ? "?" + queryStr : "";
+      window.location.href = "#" + queryStr;
     }
   });
 
