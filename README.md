@@ -1,4 +1,5 @@
 # Blog
+注：本项目大部分代码在 Trae 中生成，前端结构由 Readdy 提供
 
 ## 前端
 ### 框架&依赖
@@ -7,6 +8,7 @@
 3. Marked(highlight)
 4. ~~katex~~
 5. ~~remixicon~~
+6. lozad
 
 ### 运行
 1. 配置 `public/static/basic.js` 文件，修改 `path` 为后端接口地址
