@@ -1,4 +1,7 @@
 FROM golang:1.24-alpine AS build
+
+# 使用清华镜像
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories
 RUN apk add --no-cache alpine-sdk
 
 WORKDIR /app
