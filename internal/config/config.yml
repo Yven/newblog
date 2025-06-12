@@ -16,7 +16,7 @@ web:
       path: "#about"
     -
       title: "Memos"
-      path: "http://yvenchang.cn:4200"
+      path: "https://memos.yvenchang.cn"
     -
       title: "Trending"
       path: "https://yvenchang.cn/today.html"

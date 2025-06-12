@@ -30,7 +30,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 
 	tid, _ := strconv.ParseInt(tag, 10, 64)
 	cid, _ := strconv.ParseInt(category, 10, 64)
-	search := validate.List{
+	search := &validate.List{
 		Keyword:  keyword,
 		Tag:      tid,
 		Category: cid,
@@ -43,6 +43,9 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	}
 
 	data, err := h.articleService.List(search, getAll)
+	// go func() {
+	// 	util.Sitemap("./public", data)
+	// }()
 
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)

@@ -10,7 +10,7 @@ import (
 )
 
 type ArticleRepository interface {
-	List(search validate.List, getAll bool) (*[]model.ArticleList, error)
+	List(search *validate.List, getAll bool) (*[]model.ArticleList, error)
 	Info(slug string, getAll bool) (*model.Article, error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
@@ -71,7 +71,7 @@ LIMIT 1
 	return &article, nil
 }
 
-func (a *articleRepository) List(search validate.List, getAll bool) (*[]model.ArticleList, error) {
+func (a *articleRepository) List(search *validate.List, getAll bool) (*[]model.ArticleList, error) {
 	var where []string
 	var args []any
 	if search.Keyword != "" {
