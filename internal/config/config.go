@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"log/slog"
 	"newblog/internal/model"
 	"strings"
 
@@ -26,13 +27,28 @@ func InitConfig() {
 	// 支持通过环境变量覆盖配置
 	viper.AutomaticEnv()
 
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("读取配置文件失败: %v", err)
+	}
+
 	// 将SERVER_ADDR环境变量按逗号分割为字符串数组
 	if addr := viper.GetString("SERVER_ADDR"); addr != "" {
 		viper.Set("server.addr", strings.Split(addr, ","))
 	}
 
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("读取配置文件失败: %v", err)
+	// 将字符串日志级别映射到 slog.Level
+	logLevel := strings.ToLower(viper.GetString("log.level"))
+	switch logLevel {
+	case "debug":
+		viper.Set("log.level", slog.LevelDebug)
+	case "info":
+		viper.Set("log.level", slog.LevelInfo)
+	case "warn":
+		viper.Set("log.level", slog.LevelWarn)
+	case "error":
+		viper.Set("log.level", slog.LevelError)
+	default:
+		viper.Set("log.level", slog.LevelInfo)
 	}
 
 	reload := func() {

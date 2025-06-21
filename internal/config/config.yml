@@ -36,4 +36,6 @@ auth:
   issuer: "yven_server"
 
 log:
-  level: "info"
+  # 可选 debug, info, warn, error
+  level: "warn"
+  path: "./logs"

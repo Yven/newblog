@@ -23,6 +23,7 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 		AllowCredentials: true,
 		MaxAge:           86400,
 	}))
+	r.Use(middleware.SlogLogger(), middleware.SlogRecovery())
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("idStringList", validate.IdStringList)
@@ -47,6 +48,8 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 
 		authorized.POST("/content/:slug", articleHandler.Edit)
 		authorized.DELETE("/content/:slug", articleHandler.Delete)
+
+		authorized.POST("/content/sync", articleHandler.Sync)
 
 		authorized.POST("/content", articleHandler.Create)
 		authorized.DELETE("/content/delete/:slug", articleHandler.RealDelete)
