@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterRoutes(svc *service.Container) http.Handler {
-	r := gin.Default()
+	r := gin.New()
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     config.Global.Server.Addr,
@@ -30,7 +30,7 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 	}
 
 	adminHandler := NewAdminHandler(svc.AdminService)
-	articleHandler := NewArticleHandler(svc.ArticleService)
+	articleHandler := NewArticleHandler(svc.ArticleService, svc.AuthService)
 	WebHandler := NewWebHandler(svc.WebService)
 
 	web := r.Group("/web")
@@ -42,7 +42,7 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 	r.GET("/content/:slug", articleHandler.Info)
 
 	authorized := r.Group("/")
-	authorized.Use(middleware.Auth())
+	authorized.Use(middleware.Auth(svc.AuthService))
 	{
 		authorized.POST("/logout", adminHandler.Logout)
 

@@ -51,12 +51,12 @@ func main() {
 	// 配置初始化
 	config.InitConfig()
 	// JWT 初始化
-	global.JwtService = util.NewJwt(config.Global.Auth.SignKey, config.Global.Auth.LocalPath)
+	global.JwtService = util.NewJwt(config.Global.Auth.SignKey)
 	// 数据库初始化
 	db := repository.InitDb()
 
 	// 日志初始化
-	logger.Init()
+	logger.Init(config.Global.Log.Path, config.Global.Log.Level)
 
 	// 容器初始化
 	repo := repository.NewRepositoryContainer(db)

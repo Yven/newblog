@@ -25,5 +25,4 @@ func (h *WebHandler) Info(c *gin.Context) {
 	}
 
 	util.Success(c, data)
-	return
 }

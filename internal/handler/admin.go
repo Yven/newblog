@@ -38,11 +38,9 @@ func (s *AdminHandler) Login(c *gin.Context) {
 	}
 
 	util.Success(c, token)
-	return
 }
 
 func (s *AdminHandler) Logout(c *gin.Context) {
-	s.adminService.Logout()
+	s.adminService.Logout(c.GetString("userId"))
 	util.Success(c, nil)
-	return
 }

@@ -32,7 +32,7 @@ auth:
   user: "admin"
   password: "123456"
   sign_key: "123456"
-  local_path: "./db/auth"
+  local_path: "./db"
   issuer: "yven_server"
 
 log:

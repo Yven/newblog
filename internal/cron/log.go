@@ -15,7 +15,7 @@ func (l *Log) GetRetryTimes() int {
 
 func (l *Log) Exec() error {
 	// 切割日志每天使用新文件
-	logger.Init()
+	logger.Init(config.Global.Log.Path, config.Global.Log.Level)
 
 	// 扫描日志目录
 	files, err := os.ReadDir(config.Global.Log.Path)

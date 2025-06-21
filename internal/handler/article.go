@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"net/http"
-	"newblog/internal/global"
 	"newblog/internal/model"
 	"newblog/internal/service"
 	"newblog/internal/util"
@@ -17,10 +16,14 @@ import (
 
 type ArticleHandler struct {
 	articleService service.ArticleService
+	authService    service.AuthService
 }
 
-func NewArticleHandler(articleService service.ArticleService) *ArticleHandler {
-	return &ArticleHandler{articleService: articleService}
+func NewArticleHandler(articleService service.ArticleService, authService service.AuthService) *ArticleHandler {
+	return &ArticleHandler{
+		articleService: articleService,
+		authService:    authService,
+	}
 }
 
 func (h *ArticleHandler) List(c *gin.Context) {
@@ -36,7 +39,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 		Category: cid,
 	}
 
-	_, err := global.JwtService.BearerHeaderCheck(c.GetHeader("Authorization"))
+	_, err := h.authService.BearerHeaderCheck(c.GetHeader("Authorization"))
 	getAll := false
 	if err == nil {
 		getAll = true
@@ -50,13 +53,12 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	}
 
 	util.Success(c, data)
-	return
 }
 
 func (h *ArticleHandler) Info(c *gin.Context) {
 	slug := c.Param("slug")
 
-	_, err := global.JwtService.BearerHeaderCheck(c.GetHeader("Authorization"))
+	_, err := h.authService.BearerHeaderCheck(c.GetHeader("Authorization"))
 	getAll := false
 	if err == nil {
 		getAll = true
@@ -70,7 +72,6 @@ func (h *ArticleHandler) Info(c *gin.Context) {
 	}
 
 	util.Success(c, article)
-	return
 }
 
 func (h *ArticleHandler) Edit(c *gin.Context) {
@@ -97,7 +98,6 @@ func (h *ArticleHandler) Edit(c *gin.Context) {
 	}
 
 	util.Success(c, nil)
-	return
 }
 
 func (h *ArticleHandler) Delete(c *gin.Context) {
@@ -110,7 +110,6 @@ func (h *ArticleHandler) Delete(c *gin.Context) {
 	}
 
 	util.Success(c, nil)
-	return
 }
 
 func (h *ArticleHandler) RealDelete(c *gin.Context) {
@@ -123,7 +122,6 @@ func (h *ArticleHandler) RealDelete(c *gin.Context) {
 	}
 
 	util.Success(c, nil)
-	return
 }
 
 func (h *ArticleHandler) Recover(c *gin.Context) {
@@ -136,7 +134,6 @@ func (h *ArticleHandler) Recover(c *gin.Context) {
 	}
 
 	util.Success(c, nil)
-	return
 }
 
 func (h *ArticleHandler) Create(c *gin.Context) {
@@ -178,7 +175,6 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 	}
 
 	util.Success(c, res)
-	return
 }
 
 func (h *ArticleHandler) Sync(c *gin.Context) {
@@ -190,5 +186,4 @@ func (h *ArticleHandler) Sync(c *gin.Context) {
 	}
 
 	util.Success(c, nil)
-	return
 }

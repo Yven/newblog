@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"newblog/internal/global"
+	"newblog/internal/service"
 	"newblog/internal/util"
 	"runtime"
 	"time"
@@ -12,9 +13,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Auth() gin.HandlerFunc {
+func Auth(srv service.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims, err := global.JwtService.BearerHeaderCheck(c.GetHeader("Authorization"))
+		bearer := c.GetHeader("Authorization")
+		claims, err := srv.BearerHeaderCheck(bearer)
 		if err != nil {
 			util.ErrorAbort(c, http.StatusUnauthorized, err)
 			return
