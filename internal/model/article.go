@@ -10,7 +10,7 @@ type Article struct {
 	CreateTime string  `json:"create_time"`
 	UpdateTime string  `json:"update_time"`
 	DeleteTime *string `json:"delete_time"`
-	TagList    *[]Tag  `json:"tag_list"`
+	TagList    []*Tag  `json:"tag_list"`
 }
 
 type ArticleListItem struct {
@@ -21,7 +21,7 @@ type ArticleListItem struct {
 	Category   *string `json:"category"`
 	Date       string  `json:"date"`
 	DeleteTime *string `json:"delete_time"`
-	TagList    *[]Tag  `json:"tag_list"`
+	TagList    []*Tag  `json:"tag_list"`
 }
 
 type ArticleList struct {

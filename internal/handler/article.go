@@ -43,9 +43,6 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	}
 
 	data, err := h.articleService.List(search, getAll)
-	// go func() {
-	// 	util.Sitemap("./public", data)
-	// }()
 
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)
@@ -156,14 +153,14 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 	}
 
 	tagList := strings.Split(data.TagList, ",")
-	var tags []model.Tag
+	var tags []*model.Tag
 	for _, tagStr := range tagList {
 		tagStr = strings.TrimSpace(tagStr)
 		if tagStr == "" {
 			continue
 		}
 		tagId, _ := strconv.ParseInt(tagStr, 10, 64)
-		tags = append(tags, model.Tag{ID: tagId})
+		tags = append(tags, &model.Tag{ID: tagId})
 	}
 
 	article := &model.Article{
@@ -171,7 +168,7 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 		Title:   data.Title,
 		Content: data.Content,
 		Cid:     data.Cid,
-		TagList: &tags,
+		TagList: tags,
 	}
 
 	res, err := h.articleService.Create(article)
@@ -181,5 +178,17 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 	}
 
 	util.Success(c, res)
+	return
+}
+
+func (h *ArticleHandler) Sync(c *gin.Context) {
+	err := h.articleService.Sync()
+
+	if err != nil {
+		util.Error(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.Success(c, nil)
 	return
 }

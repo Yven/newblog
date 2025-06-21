@@ -8,12 +8,12 @@ import (
 )
 
 type TagRepository interface {
-	List(aid int64) (*[]model.Tag, error)
-	ListAll() (*[]model.Tag, error)
-	Exist(tags *[]model.Tag) (bool, error)
+	List(aid int64) ([]*model.Tag, error)
+	ListAll() ([]*model.Tag, error)
+	Exist(tags []*model.Tag) (bool, error)
 	Insert(name string) (*model.Tag, error)
 	DeleteRelate(aid int64) error
-	Relate(aid int64, tags *[]model.Tag) error
+	Relate(aid int64, tags []*model.Tag) error
 }
 
 type tagRepository struct {
@@ -24,7 +24,7 @@ func NewTagRepository(db *sql.DB) TagRepository {
 	return &tagRepository{db: db}
 }
 
-func (a *tagRepository) ListAll() (*[]model.Tag, error) {
+func (a *tagRepository) ListAll() ([]*model.Tag, error) {
 	query := `
 SELECT id, name
 FROM tag
@@ -40,7 +40,7 @@ FROM tag
 		return nil, err
 	}
 
-	var tags []model.Tag
+	var tags []*model.Tag
 	for tagsRow.Next() {
 		var tag model.Tag
 		if err := tagsRow.Scan(
@@ -49,13 +49,13 @@ FROM tag
 		); err != nil {
 			return nil, err
 		}
-		tags = append(tags, tag)
+		tags = append(tags, &tag)
 	}
 
-	return &tags, nil
+	return tags, nil
 }
 
-func (a *tagRepository) List(aid int64) (*[]model.Tag, error) {
+func (a *tagRepository) List(aid int64) ([]*model.Tag, error) {
 	query := `
 SELECT t.id, t.name
 FROM tag AS t
@@ -64,16 +64,15 @@ WHERE at.aid = ?
 `
 
 	tagsRow, err := a.db.Query(query, aid)
-	defer tagsRow.Close()
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
 	}
+	defer tagsRow.Close()
 
-	var tags []model.Tag
+	var tags []*model.Tag
 	for tagsRow.Next() {
 		var tag model.Tag
 		if err := tagsRow.Scan(
@@ -82,14 +81,14 @@ WHERE at.aid = ?
 		); err != nil {
 			return nil, err
 		}
-		tags = append(tags, tag)
+		tags = append(tags, &tag)
 	}
 
-	return &tags, nil
+	return tags, nil
 }
 
-func (a *tagRepository) Exist(tags *[]model.Tag) (bool, error) {
-	placeholders := make([]string, len(*tags))
+func (a *tagRepository) Exist(tags []*model.Tag) (bool, error) {
+	placeholders := make([]string, len(tags))
 	for i := range placeholders {
 		placeholders[i] = "?"
 	}
@@ -100,8 +99,8 @@ FROM tag
 WHERE id IN (%s)
 `, strings.Join(placeholders, ","))
 
-	ids := make([]any, len(*tags))
-	for i, tag := range *tags {
+	ids := make([]any, len(tags))
+	for i, tag := range tags {
 		ids[i] = tag.ID
 	}
 
@@ -110,7 +109,7 @@ WHERE id IN (%s)
 		return false, err
 	}
 
-	return count == len(*tags), nil
+	return count == len(tags), nil
 }
 
 func (a *tagRepository) Insert(name string) (*model.Tag, error) {
@@ -146,13 +145,13 @@ WHERE aid = ?
 	return nil
 }
 
-func (a *tagRepository) Relate(aid int64, tags *[]model.Tag) error {
+func (a *tagRepository) Relate(aid int64, tags []*model.Tag) error {
 	query := `
 INSERT INTO article_tag(aid, tid)
 VALUES(?, ?)
 `
 
-	for _, tag := range *tags {
+	for _, tag := range tags {
 		_, err := a.db.Exec(query, aid, tag.ID)
 		if err != nil {
 			return err

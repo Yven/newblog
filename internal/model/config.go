@@ -1,5 +1,7 @@
 package model
 
+import "log/slog"
+
 type Config struct {
 	Server struct {
 		Port int      `mapstructure:"port"`
@@ -33,6 +35,7 @@ type Config struct {
 	} `mapstructure:"auth"`
 
 	Log struct {
-		Level string `mapstructure:"level"`
+		Level slog.Level `mapstructure:"level"`
+		Path  string     `mapstructure:"path"`
 	} `mapstructure:"log"`
 }

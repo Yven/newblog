@@ -74,18 +74,22 @@ LIMIT 1
 func (a *articleRepository) List(search *validate.List, getAll bool) (*[]model.ArticleList, error) {
 	var where []string
 	var args []any
-	if search.Keyword != "" {
-		where = append(where, "a.title LIKE ?")
-		args = append(args, "%"+search.Keyword+"%")
+
+	if search != nil {
+		if search.Keyword != "" {
+			where = append(where, "a.title LIKE ?")
+			args = append(args, "%"+search.Keyword+"%")
+		}
+		if search.Category != 0 {
+			where = append(where, "a.cid = ?")
+			args = append(args, search.Category)
+		}
+		if search.Tag != 0 {
+			where = append(where, "at.tid = ?")
+			args = append(args, search.Tag)
+		}
 	}
-	if search.Category != 0 {
-		where = append(where, "a.cid = ?")
-		args = append(args, search.Category)
-	}
-	if search.Tag != 0 {
-		where = append(where, "at.tid = ?")
-		args = append(args, search.Tag)
-	}
+
 	if !getAll {
 		where = append(where, "a.delete_time IS NULL")
 	}

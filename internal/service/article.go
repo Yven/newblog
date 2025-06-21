@@ -1,9 +1,9 @@
 package service
 
 import (
+	"newblog/internal/cron"
 	"newblog/internal/model"
 	"newblog/internal/repository"
-	"newblog/internal/util"
 	"newblog/internal/validate"
 )
 
@@ -15,6 +15,7 @@ type ArticleService interface {
 	RealDelete(slug string) error
 	Recover(slug string) error
 	Create(article *model.Article) (*model.Article, error)
+	Sync() error
 }
 
 type articleService struct {
@@ -52,14 +53,10 @@ func (s *articleService) Recover(slug string) error {
 }
 
 func (s *articleService) Create(article *model.Article) (*model.Article, error) {
-	res, err := s.db.Insert(article)
+	return s.db.Insert(article)
+}
 
-	go func() {
-		data, listErr := s.db.List(nil, false)
-		if listErr == nil {
-			util.Sitemap("./public", data)
-		}
-	}()
-
-	return res, err
+func (s *articleService) Sync() error {
+	nb := &cron.NotionBlog{}
+	return nb.Exec()
 }

@@ -10,14 +10,16 @@ import (
 	"time"
 
 	"newblog/internal/config"
+	"newblog/internal/cron"
 	"newblog/internal/global"
 	"newblog/internal/handler"
+	"newblog/internal/logger"
 	"newblog/internal/repository"
 	"newblog/internal/service"
 	"newblog/internal/util"
 )
 
-func gracefulShutdown(apiServer *http.Server, done chan bool) {
+func gracefulShutdown(apiServer *http.Server, cronService *cron.CronService, done chan bool) {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -27,6 +29,9 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 
 	log.Println("shutting down gracefully, press Ctrl+C again to force")
 	stop() // Allow Ctrl+C to force shutdown
+
+	// 停止定时任务
+	cronService.Stop()
 
 	// The context is used to inform the server it has 5 seconds to finish
 	// the request it is currently handling
@@ -49,9 +54,18 @@ func main() {
 	global.JwtService = util.NewJwt(config.Global.Auth.SignKey, config.Global.Auth.LocalPath)
 	// 数据库初始化
 	db := repository.InitDb()
+
+	// 日志初始化
+	logger.Init()
+
 	// 容器初始化
 	repo := repository.NewRepositoryContainer(db)
 	svc := service.NewServiceContainer(repo)
+
+	// 定时任务初始化
+	cronService := cron.NewCronService()
+	cronService.Register()
+
 	// http 服务初始化
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", config.Global.Server.Port),
@@ -65,7 +79,7 @@ func main() {
 	done := make(chan bool, 1)
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	go gracefulShutdown(server, cronService, done)
 
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {

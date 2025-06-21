@@ -8,6 +8,8 @@
 db/*
 !db/init.sql
 
+logs/*
+
 public/input.css
 public/tailwind.config.js
 public/tailwindcss

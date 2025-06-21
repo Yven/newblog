@@ -3,11 +3,13 @@ package repository
 import (
 	"database/sql"
 	"newblog/internal/model"
+	"strings"
 )
 
 type CategoryRepository interface {
 	Exist(id int64) (bool, error)
 	Insert(name string) (int64, error)
+	GetByName(name string) (*model.Category, error)
 	Delete(aid int64) error
 }
 
@@ -48,6 +50,26 @@ FROM category
 	}
 
 	return &cates, nil
+}
+
+func (a *categoryRepository) GetByName(name string) (*model.Category, error) {
+	query := `
+SELECT *
+FROM category
+WHERE name = ?
+`
+	name = strings.ToLower(strings.TrimSpace(name))
+
+	var exist model.Category
+	err := a.db.QueryRow(query, name).Scan(
+		&exist.ID,
+		&exist.Name,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &exist, nil
 }
 
 func (a *categoryRepository) Exist(id int64) (bool, error) {

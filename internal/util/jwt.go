@@ -55,7 +55,8 @@ func (j *jwtService) GetToken(userId string) (*model.Token, error) {
 
 	// 生成新的token
 	nowtime := time.Now()
-	exptime := nowtime.Add(time.Hour)
+	appendTime := time.Hour
+	exptime := nowtime.Add(appendTime)
 	j.claims = &JWTClaims{
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exptime),
@@ -72,12 +73,12 @@ func (j *jwtService) GetToken(userId string) (*model.Token, error) {
 	// 保存token到本地
 	os.Remove(j.localPath)
 	err = os.WriteFile(j.localPath, []byte(token), 0644)
+
 	// 定时删除
 	if err != nil {
-		go func() {
-			time.Sleep(time.Hour)
+		time.AfterFunc(appendTime, func() {
 			os.Remove(j.localPath)
-		}()
+		})
 	}
 
 	return &model.Token{
