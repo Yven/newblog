@@ -17,6 +17,8 @@ import (
 	"newblog/internal/repository"
 	"newblog/internal/service"
 	"newblog/internal/util"
+
+	"github.com/gin-gonic/gin"
 )
 
 func gracefulShutdown(apiServer *http.Server, cronService *cron.CronService, done chan bool) {
@@ -50,6 +52,8 @@ func gracefulShutdown(apiServer *http.Server, cronService *cron.CronService, don
 func main() {
 	// 配置初始化
 	config.InitConfig()
+	// 运行模式
+	gin.SetMode(config.Global.App.Env)
 	// JWT 初始化
 	global.JwtService = util.NewJwt(config.Global.Auth.SignKey)
 	// 数据库初始化

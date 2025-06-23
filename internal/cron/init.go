@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"newblog/internal/global"
+	"time"
 
 	"github.com/robfig/cron/v3"
 )
@@ -51,6 +52,9 @@ func (s *CronService) Register() {
 		id, _ := s.c.AddFunc(spec, func() {
 			// 重试
 			for i := 0; i < mission.GetRetryTimes(); i++ {
+				if i > 0 {
+					time.Sleep(5 * time.Second)
+				}
 				log.Printf("定时任务开始执行[第%d次]: %T", i+1, mission)
 
 				err := mission.Exec()

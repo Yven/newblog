@@ -1,13 +1,19 @@
 package middleware
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
+	"newblog/internal/config"
 	"newblog/internal/global"
 	"newblog/internal/service"
 	"newblog/internal/util"
+	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -34,26 +40,61 @@ func SlogLogger() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 
+		var bodyBytes []byte
+		// 获取请求体数据
+		if c.Request.Body != nil {
+			bodyBytes, _ = c.GetRawData()
+			// 重新设置请求体，因为GetRawData会清空body
+			// 使用io.NopCloser重新构造请求体
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+		var body any
+		if len(bodyBytes) > 0 {
+			json.Unmarshal(bodyBytes, &body)
+		}
+
 		c.Next()
 
-		latency := time.Since(start)
+		end := time.Now()
+		latency := strings.Trim(fmt.Sprintf("%13v", end.Sub(start)), " ")
 
 		global.Logger.Info("request",
 			slog.String("method", c.Request.Method),
 			slog.String("path", path),
 			slog.String("ip", c.ClientIP()),
 			slog.Int("status", c.Writer.Status()),
-			slog.Duration("latency", latency),
+			slog.String("latency", latency),
 		)
+
+		// gin 的 logger 中间件请求标准输出
+		if config.Global.App.Env != "release" {
+			param := gin.LogFormatterParams{}
+			statusColor := param.StatusCodeColor()
+			methodColor := param.MethodColor()
+			resetColor := param.ResetColor()
+
+			fmt.Fprintf(os.Stdout, "[GIN] %v |%s %3d %s| %13v | %15s |%s %-7s %s %#v\n%s",
+				end.Format("2006/01/02 - 15:04:05"),
+				statusColor, c.Writer.Status(), resetColor,
+				latency,
+				c.ClientIP(),
+				methodColor, c.Request.Method, resetColor,
+				path,
+				c.Errors.ByType(gin.ErrorTypePrivate).String(),
+			)
+		}
 
 		for _, e := range c.Errors {
 			global.Logger.Error("接口错误",
 				slog.Any("error", e.Err),
 				slog.String("method", c.Request.Method),
 				slog.String("path", path),
+				slog.Any("token", c.Request.Header.Get("Authorization")),
+				slog.Any("query", c.Request.URL.RawQuery),
+				slog.Any("body", body),
 				slog.String("ip", c.ClientIP()),
 				slog.Int("status", c.Writer.Status()),
-				slog.Duration("latency", latency),
+				slog.String("latency", latency),
 			)
 		}
 	}

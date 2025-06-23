@@ -1,8 +1,14 @@
 package model
 
-import "log/slog"
+import (
+	"log/slog"
+)
 
 type Config struct {
+	App struct {
+		Env string `mapstructure:"env"`
+	}
+
 	Server struct {
 		Port int      `mapstructure:"port"`
 		Addr []string `mapstructure:"addr"`

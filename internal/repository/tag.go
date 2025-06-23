@@ -31,14 +31,13 @@ FROM tag
 `
 
 	tagsRow, err := a.db.Query(query)
-	defer tagsRow.Close()
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
 	}
+	defer tagsRow.Close()
 
 	var tags []*model.Tag
 	for tagsRow.Next() {

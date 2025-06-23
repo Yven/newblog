@@ -114,14 +114,13 @@ ORDER BY create_time DESC
 `
 
 	rows, err := a.db.Query(query, args...)
-	defer rows.Close()
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
 	}
+	defer rows.Close()
 
 	var list []model.ArticleList
 
