@@ -3,11 +3,10 @@ package util
 import (
 	"newblog/internal/model"
 	"os"
-	"strconv"
 	"strings"
 )
 
-func Sitemap(path string, list *[]model.ArticleList) error {
+func Sitemap(path string, list []*model.Article) error {
 	url := "https://yvenchang.cn"
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -24,14 +23,11 @@ func Sitemap(path string, list *[]model.ArticleList) error {
   </sitemap>`
 
 	var urlList []string
-	for _, x := range *list {
-		year := x.Year
-		for _, item := range x.Item {
-			var str string
-			str = strings.ReplaceAll(tpl, "{{url}}", url+"/#"+item.Slug)
-			str = strings.ReplaceAll(str, "{{lastmod}}", strconv.Itoa(year)+"-"+item.Date)
-			urlList = append(urlList, str)
-		}
+	for _, item := range list {
+		var str string
+		str = strings.ReplaceAll(tpl, "{{url}}", url+"/#"+item.Slug)
+		str = strings.ReplaceAll(str, "{{lastmod}}", item.CreateTime)
+		urlList = append(urlList, str)
 	}
 
 	xml = strings.ReplaceAll(xml, "{{list}}", strings.Join(urlList, ""))

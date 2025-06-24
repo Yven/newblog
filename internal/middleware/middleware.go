@@ -68,18 +68,23 @@ func SlogLogger() gin.HandlerFunc {
 
 		// gin 的 logger 中间件请求标准输出
 		if config.Global.App.Env != "release" {
-			param := gin.LogFormatterParams{}
+			param := gin.LogFormatterParams{
+				StatusCode: c.Writer.Status(),
+				Method:     c.Request.Method,
+				Path:       path,
+				ClientIP:   c.ClientIP(),
+			}
 			statusColor := param.StatusCodeColor()
 			methodColor := param.MethodColor()
 			resetColor := param.ResetColor()
 
 			fmt.Fprintf(os.Stdout, "[GIN] %v |%s %3d %s| %13v | %15s |%s %-7s %s %#v\n%s",
 				end.Format("2006/01/02 - 15:04:05"),
-				statusColor, c.Writer.Status(), resetColor,
+				statusColor, param.StatusCode, resetColor,
 				latency,
-				c.ClientIP(),
-				methodColor, c.Request.Method, resetColor,
-				path,
+				param.ClientIP,
+				methodColor, param.Method, resetColor,
+				param.Path,
 				c.Errors.ByType(gin.ErrorTypePrivate).String(),
 			)
 		}

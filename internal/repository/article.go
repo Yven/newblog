@@ -10,7 +10,7 @@ import (
 )
 
 type ArticleRepository interface {
-	List(search *validate.List, getAll bool) (*[]model.ArticleList, error)
+	List(search *validate.List, getAll bool) ([]*model.Article, error)
 	Info(slug string, getAll bool) (*model.Article, error)
 	Edit(slug string, newContent string) error
 	Delete(slug string) error
@@ -71,7 +71,7 @@ LIMIT 1
 	return &article, nil
 }
 
-func (a *articleRepository) List(search *validate.List, getAll bool) (*[]model.ArticleList, error) {
+func (a *articleRepository) List(search *validate.List, getAll bool) ([]*model.Article, error) {
 	var where []string
 	var args []any
 
@@ -101,8 +101,8 @@ func (a *articleRepository) List(search *validate.List, getAll bool) (*[]model.A
 
 	query := `
 SELECT a.id, a.slug, a.title, a.cid,
-strftime('%m-%d', datetime(a.create_time, 'unixepoch')) as date,
-strftime('%Y', datetime(a.create_time, 'unixepoch')) as year,
+datetime(a.create_time, 'unixepoch') as create_time,
+datetime(a.update_time, 'unixepoch') as update_time,
 c.name AS category,
 strftime('%Y-%m-%d %H:%M:%S', datetime(a.delete_time, 'unixepoch')) as delete_time
 FROM article AS a
@@ -122,39 +122,29 @@ ORDER BY create_time DESC
 	}
 	defer rows.Close()
 
-	var list []model.ArticleList
+	var list []*model.Article
 
-	i := 0
 	for rows.Next() {
-		var item model.ArticleListItem
-		var year int
+		var item model.Article
 		if err := rows.Scan(
 			&item.ID,
 			&item.Slug,
 			&item.Title,
 			&item.Cid,
-			&item.Date,
-			&year,
+			&item.CreateTime,
+			&item.UpdateTime,
 			&item.Category,
 			&item.DeleteTime,
 		); err != nil {
 			return nil, err
 		}
-		if len(list) == 0 {
-			// 初始化
-			list = append(list, model.ArticleList{Year: year, Item: nil})
-		}
-		if list[i].Year != year {
-			// 新增
-			i = i + 1
-			list = append(list, model.ArticleList{Year: year, Item: nil})
-		}
+
 		item.TagList, _ = NewTagRepository(a.db).List(item.ID)
 
-		list[i].Item = append(list[i].Item, item)
+		list = append(list, &item)
 	}
 
-	return &list, nil
+	return list, nil
 }
 
 func (a *articleRepository) Edit(slug string, newContent string) error {

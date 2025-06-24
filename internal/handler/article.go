@@ -2,16 +2,20 @@ package handler
 
 import (
 	"errors"
+	"log"
 	"net/http"
+	"newblog/internal/config"
 	"newblog/internal/model"
 	"newblog/internal/service"
 	"newblog/internal/util"
 	"newblog/internal/validate"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/feeds"
 )
 
 type ArticleHandler struct {
@@ -45,7 +49,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 		getAll = true
 	}
 
-	data, err := h.articleService.List(search, getAll)
+	data, err := h.articleService.ListByYear(search, getAll)
 
 	if err != nil {
 		util.Error(c, http.StatusInternalServerError, err)
@@ -186,4 +190,41 @@ func (h *ArticleHandler) Sync(c *gin.Context) {
 	}
 
 	util.Success(c, nil)
+}
+
+func (h *ArticleHandler) Feed(c *gin.Context) {
+	now := time.Now()
+	url := "https://yvenchang.cn"
+	author := feeds.Author{Name: "Yven Chang", Email: "yvenchang@163.com"}
+
+	feed := &feeds.Feed{
+		Title:       config.Global.Web.Title,
+		Link:        &feeds.Link{Href: url},
+		Description: config.Global.Web.Desc,
+		Author:      &author,
+		Created:     now,
+	}
+
+	articles, err := h.articleService.List(nil, false)
+
+	for _, article := range articles {
+		create, _ := time.Parse("2006-01-02 15:04:05", article.CreateTime)
+		update, _ := time.Parse("2006-01-02 15:04:05", article.UpdateTime)
+		feed.Items = append(feed.Items, &feeds.Item{
+			Title:       article.Title,
+			Link:        &feeds.Link{Href: url + "/#" + article.Slug},
+			Description: "",
+			Author:      &author,
+			Created:     create,
+			Updated:     update,
+			Content:     article.Content,
+		})
+	}
+
+	rss, err := feed.ToRss()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.Data(http.StatusOK, "application/rss+xml; charset=utf-8", []byte(rss))
 }

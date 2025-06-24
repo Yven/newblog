@@ -41,6 +41,8 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 	r.GET("/list", articleHandler.List)
 	r.GET("/content/:slug", articleHandler.Info)
 
+	r.GET("/feed", articleHandler.Feed)
+
 	authorized := r.Group("/")
 	authorized.Use(middleware.Auth(svc.AuthService))
 	{
