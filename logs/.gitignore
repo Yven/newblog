@@ -1,0 +1,12 @@
+*.log
+
+# IDE specific files
+.vscode
+.idea
+.devdbrc
+
+# .env file
+.env
+
+# OS X generated file
+.DS_Store

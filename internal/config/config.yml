@@ -8,7 +8,7 @@ server:
 
 web:
   open: true
-  title: "那人的庭院"
+  title: "内在宇宙"
   desc: "人生如逆旅，我亦是行人。"
   nav_list:
     -
