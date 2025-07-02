@@ -159,6 +159,8 @@ async function baseInfo() {
   return getWebInfo()
     .then((data) => {
       if (data.code === 200) {
+        window.localStorage.setItem("webInfo", JSON.stringify(data.data));
+
         webOpen = data.data.open;
 
         const webTitle = document.getElementById("webTitle");
@@ -344,6 +346,8 @@ async function setupList(params = {}) {
         search_info: searchInfo,
         list: html,
       });
+
+      document.title = window.localStorage.getItem("webInfo").title;
 
       showHome();
     })

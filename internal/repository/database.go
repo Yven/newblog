@@ -3,24 +3,15 @@ package repository
 import (
 	"database/sql"
 	"log"
-	"newblog/internal/config"
-	"newblog/internal/global"
 
-	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func InitDb() *sql.DB {
-	if global.DbInstance != nil {
-		return global.DbInstance
-	}
-
-	db, err := sql.Open("sqlite3", config.Global.Database.Host)
+func InitDb(dbPath string) *sql.DB {
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	global.DbInstance = db
 
 	// 数据表初始化
 	err = InitTable(db)
@@ -28,5 +19,5 @@ func InitDb() *sql.DB {
 		log.Fatal(err)
 	}
 
-	return global.DbInstance
+	return db
 }

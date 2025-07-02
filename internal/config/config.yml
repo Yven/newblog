@@ -20,9 +20,9 @@ web:
     -
       title: "Memos"
       path: "https://memos.yvenchang.cn"
-    -
-      title: "Trending"
-      path: "https://yvenchang.cn/today.html"
+    # -
+    #   title: "Trending"
+    #   path: "https://yvenchang.cn/today.html"
 
 database:
   host: "localhost"

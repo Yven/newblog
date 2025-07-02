@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -127,6 +128,19 @@ func SlogRecovery() gin.HandlerFunc {
 				// })
 			}
 		}()
+		c.Next()
+	}
+}
+
+func RateLimitMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		limiter := global.Visitors.GetVisitor(ip)
+
+		if !limiter.Allow() {
+			util.ErrorAbort(c, http.StatusTooManyRequests, errors.New("系统繁忙，请稍后再试"))
+			return
+		}
 		c.Next()
 	}
 }

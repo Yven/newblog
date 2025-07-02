@@ -24,6 +24,7 @@ func RegisterRoutes(svc *service.Container) http.Handler {
 		MaxAge:           86400,
 	}))
 	r.Use(middleware.SlogLogger(), middleware.SlogRecovery())
+	r.Use(middleware.RateLimitMiddleware())
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("idStringList", validate.IdStringList)

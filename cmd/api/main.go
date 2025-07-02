@@ -54,13 +54,19 @@ func main() {
 	config.InitConfig()
 	// 运行模式
 	gin.SetMode(config.Global.App.Env)
-	// JWT 初始化
-	global.JwtService = util.NewJwt(config.Global.Auth.SignKey)
-	// 数据库初始化
-	db := repository.InitDb()
 
-	// 日志初始化
-	logger.Init(config.Global.Log.Path, config.Global.Log.Level)
+	// 数据库初始化
+	db := repository.InitDb(config.Global.Database.Host)
+	// 全局变量初始化
+	global.Init(
+		db,
+		// JWT 初始化
+		util.NewJwt(config.Global.Auth.SignKey),
+		// 日志初始化
+		logger.Init(config.Global.Log.Path, config.Global.Log.Level),
+		// 限流器初始化
+		util.NewVisitors(),
+	)
 
 	// 容器初始化
 	repo := repository.NewRepositoryContainer(db)

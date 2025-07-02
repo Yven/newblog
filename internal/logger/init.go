@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Init(path string, level slog.Level) {
+func Init(path string, level slog.Level) *slog.Logger {
 	today := time.Now().Format("2006-01-02")
 	os.MkdirAll(path, os.ModePerm)
 	logPath := filepath.Join(path, fmt.Sprintf("%s.log", today))
@@ -24,5 +24,5 @@ func Init(path string, level slog.Level) {
 		Level: level,
 	})
 
-	global.Logger = slog.New(handler)
+	return slog.New(handler)
 }

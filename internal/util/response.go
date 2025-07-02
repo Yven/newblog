@@ -17,7 +17,7 @@ func Success(c *gin.Context, data any) {
 
 func Error(c *gin.Context, code int, message error) {
 	c.Error(message)
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(code, model.Response{
 		Code:    code,
 		Message: message.Error(),
 		Data:    nil,
@@ -33,8 +33,8 @@ func SuccessAbort(c *gin.Context, data any) {
 }
 
 func ErrorAbort(c *gin.Context, code int, message error) {
-	c.Error(message)
-	c.AbortWithStatusJSON(http.StatusOK, model.Response{
+	// c.Error(message)
+	c.AbortWithStatusJSON(code, model.Response{
 		Code:    code,
 		Message: message.Error(),
 		Data:    nil,

@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Yven/notion_blog/client"
 	"github.com/Yven/notion_blog/filter"
@@ -139,8 +140,9 @@ func (n *NotionBlog) Exec() error {
 		}
 
 		// 更新文章状态
+		updateData := filter.Date("Publish Time").Set("date", map[string]string{"start": time.Now().Format("2006-01-02")}).And(filter.Status("Status").Set("name", "publish"))
 		updateErr := notion.NewPage(pageItem.Id).Update(client.UpdatePage{
-			Properties: filter.Status("Status").Set("name", "publish"),
+			Properties: updateData,
 		})
 		if updateErr != nil {
 			allErr = append(allErr, updateErr)
