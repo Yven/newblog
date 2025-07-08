@@ -347,7 +347,7 @@ async function setupList(params = {}) {
         list: html,
       });
 
-      document.title = window.localStorage.getItem("webInfo").title;
+      document.title = JSON.parse(window.localStorage.getItem("webInfo")).title;
 
       showHome();
     })
