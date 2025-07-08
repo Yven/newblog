@@ -206,6 +206,10 @@ func (h *ArticleHandler) Feed(c *gin.Context) {
 	}
 
 	articles, err := h.articleService.List(nil, false)
+	if err != nil {
+		util.Error(c, http.StatusInternalServerError, err)
+		return
+	}
 
 	for _, article := range articles {
 		create, _ := time.Parse("2006-01-02 15:04:05", article.CreateTime)

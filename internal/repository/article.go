@@ -66,6 +66,27 @@ LIMIT 1
 		return nil, err
 	}
 
+	// 将时间戳转换为time.Time类型,并根据系统时区格式化输出
+	if article.CreateTime != "" {
+		t, err := time.Parse("2006-01-02 15:04:05", article.CreateTime)
+		if err == nil {
+			article.CreateTime = t.Local().Format("2006-01-02 15:04:05")
+		}
+	}
+	if article.UpdateTime != "" {
+		t, err := time.Parse("2006-01-02 15:04:05", article.UpdateTime)
+		if err == nil {
+			article.UpdateTime = t.Local().Format("2006-01-02 15:04:05")
+		}
+	}
+	if article.DeleteTime != nil {
+		t, err := time.Parse("2006-01-02 15:04:05", *article.DeleteTime)
+		if err == nil {
+			time := t.Local().Format("2006-01-02 15:04:05")
+			article.DeleteTime = &time
+		}
+	}
+
 	article.TagList, _ = NewTagRepository(a.db).List(article.ID)
 
 	return &article, nil
@@ -228,15 +249,33 @@ func (a *articleRepository) Insert(article *model.Article) (*model.Article, erro
 	}
 
 	query := `
-INSERT INTO article (slug, title, content, cid)
-VALUES (?, ?, ?, ?)
+INSERT INTO article (slug, title, content, cid, create_time, update_time)
+VALUES (?, ?, ?, ?, ?, ?)
 `
+
+	// 设置时间
+	createTime := time.Now().Unix()
+	updateTime := createTime
+	if article.CreateTime != "" {
+		t, err := time.Parse("2006-01-02T15:04:05.000Z", article.CreateTime)
+		if err == nil {
+			createTime = t.Unix()
+		}
+	}
+	if article.UpdateTime != "" {
+		t, err := time.Parse("2006-01-02T15:04:05.000Z", article.UpdateTime)
+		if err == nil {
+			updateTime = t.Unix()
+		}
+	}
 
 	res, err := a.db.Exec(query,
 		article.Slug,
 		article.Title,
 		article.Content,
 		article.Cid,
+		createTime,
+		updateTime,
 	)
 	if err != nil {
 		return nil, err

@@ -2,7 +2,6 @@ package cron
 
 import (
 	"errors"
-	"log"
 	"newblog/internal/global"
 	"newblog/internal/model"
 	"newblog/internal/repository"
@@ -134,13 +133,12 @@ func (n *NotionBlog) Exec() error {
 			TagList:    tagList,
 		})
 		if insertErr != nil {
-			log.Fatal(insertErr)
 			allErr = append(allErr, insertErr)
 			continue
 		}
 
 		// 更新文章状态
-		updateData := filter.Date("Publish Time").Set("date", map[string]string{"start": time.Now().Format("2006-01-02")}).And(filter.Status("Status").Set("name", "publish"))
+		updateData := filter.Date("Publish Time").Set("start", time.Now().Format("2006-01-02")).And(filter.Status("Status").Set("name", "publish"))
 		updateErr := notion.NewPage(pageItem.Id).Update(client.UpdatePage{
 			Properties: updateData,
 		})
