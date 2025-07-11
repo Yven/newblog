@@ -56,7 +56,9 @@ func main() {
 	gin.SetMode(config.Global.App.Env)
 
 	// 数据库初始化
-	db := repository.InitDb(config.Global.Database.Host)
+	db := repository.InitSQLite(config.Global.Database.Host)
+	// 图数据库初始化
+	neo4j := repository.InitNeo4j(config.Global.Neo4j)
 	// 全局变量初始化
 	global.Init(
 		db,

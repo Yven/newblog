@@ -30,6 +30,11 @@ database:
   password: "123456"
   name: "demo"
 
+neo4j:
+  host: ""
+  user: ""
+  password: ""
+
 auth:
   id: 1
   user: "admin"

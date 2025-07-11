@@ -31,6 +31,8 @@ type Config struct {
 		Name     string `mapstructure:"name"`
 	} `mapstructure:"database"`
 
+	Neo4j Neo4jConfig `mapstructure:"neo4j"`
+
 	Auth struct {
 		Id        int64  `mapstructure:"id"`
 		User      string `mapstructure:"user"`
@@ -44,4 +46,10 @@ type Config struct {
 		Level slog.Level `mapstructure:"level"`
 		Path  string     `mapstructure:"path"`
 	} `mapstructure:"log"`
+}
+
+type Neo4jConfig struct {
+	Host     string `mapstructure:"host"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
 }
